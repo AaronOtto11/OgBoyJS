@@ -1,8 +1,8 @@
 (function() {
 
 
-    //var regs = Uint8Array(8);
-    //var stackPointerAndProgramCounter = Uint16Array(2);
+    var regs;
+    var stackPointerAndProgramCounter;
     const reg = {
         A: 0,
         F: 1,
@@ -19,12 +19,12 @@
 
     function registers() {
 
-        var regs = Uint8Array(8);
-        var stackPointerAndProgramCounter = Uint16Array(2);
+        this.regs = Uint8Array(8);
+        this.stackPointerAndProgramCounter = Uint16Array(2);
 
         }
 
-    gameBoy.prototype.writeToSixteenReg = function(whatReg,data) { //pass the high reg
+    registers.prototype.writeToSixteenReg = function(whatReg,data) { //pass the high reg
 
            
             //bitwise operation will be needed 
@@ -40,7 +40,7 @@
 
        };
 
-    gameBoy.prototype.readSixteenReg = function(whatReg) { //pass the high reg to what reg
+    registers.prototype.readSixteenReg = function(whatReg) { //pass the high reg to what reg
 
            //maybe bitshit then OR with low
            var temp = 0;
@@ -53,7 +53,7 @@
 
        };
 
-    gameBoy.prototype.writeReg = function(whatReg,data) { // writes to 8 bit reg
+    registers.prototype.writeReg = function(whatReg,data) { // writes to 8 bit reg
 
 
         regs[whatReg]=data;
@@ -63,7 +63,7 @@
 
     };
 
-    gameBoy.prototype.getReg = function(whatReg) { // returns 8 bit reg
+    registers.prototype.getReg = function(whatReg) { // returns 8 bit reg
 
         //regs might be global 
         // making this function for readablility though 
@@ -72,32 +72,32 @@
     };
 
 
-    gameBoy.prototype.setStackPointer = function(address) {//function name says what it does
+    registers.prototype.setStackPointer = function(address) {//function name says what it does
 
         stackPointerAndProgramCounter[reg.SP]=address;
 
     };
 
-    gameBoy.prototype.getStackPointer = function() {//function name says what it does
+    registers.prototype.getStackPointer = function() {//function name says what it does
 
         return stackPointerAndProgramCounter[reg.SP];
 
     };
 
-    gameBoy.prototype.advancePC = function(jumpAmount) { // this will advance the PC by the normal amount (I believe 4 bytes but will check before implementing)
+    registers.prototype.advancePC = function(jumpAmount) { // this will advance the PC by the normal amount (I believe 4 bytes but will check before implementing)
 
         stackPointerAndProgramCounter[reg.PC]= stackPointerAndProgramCounter[reg.PC]+jumpAmount;
 
     };
 
-    gameBoy.prototype.setPC = function(address) { // function name says what it does
+    registers.prototype.setPC = function(address) { // function name says what it does
 
         stackPointerAndProgramCounter[reg.PC]=address;
 
 
     };
 
-    gameBoy.prototype.getPC = function() {//function name says what it does
+    registers.prototype.getPC = function() {//function name says what it does
 
         return stackPointerAndProgramCounter[reg.PC];
 

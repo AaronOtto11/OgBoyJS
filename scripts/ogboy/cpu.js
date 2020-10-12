@@ -5,14 +5,18 @@
 
     function CPU(game) {
         this.cpu = new Registers(this);
-        rom = game;
+        this.rom = game; // might not have to do this
+
         }
     
 
 
-    gameBoy.prototype.loadROM = function(data) {
+    CPU.prototype.loadROM = function(data) {
 
     };
+
+    //implement the opcodes
+    //question is do I make the map/switch statement here or in gameboy
 
 
     module.exports = CPU;
