@@ -17,7 +17,7 @@
 
     }
 
-    function registers() {
+    function Registers() {
 
         this.regs = Uint8Array(8);
         this.stackPointerAndProgramCounter = Uint16Array(2);
@@ -103,5 +103,5 @@
 
     };
 
-    module.exports = registers;
+    module.exports = Registers;
 })();

@@ -1,17 +1,22 @@
 (function() {
-    var Registers = require("./registers");
+    var registers = require("./registers");
     var rom = require("./ROM");
+    var memory= require("./mmu");
+
 
 
     function CPU(game) {
-        this.cpu = new Registers(this);
+        this.registers = new Registers();
         this.rom = game; // might not have to do this
+        this.memory = new MMU(this,game);
 
         }
     
 
 
     CPU.prototype.loadROM = function(data) {
+
+        // send this down to MMU
 
     };
 
