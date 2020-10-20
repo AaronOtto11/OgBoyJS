@@ -47,7 +47,7 @@
            temp= regs[whatReg]<<8;
            temp= temp | regs[whatReg+1];
 
-           return
+           return temp;
 
    
 
