@@ -5,9 +5,8 @@
 
 
 
-    function CPU(game) {
+    function CPU() {
         this.registers = new Registers();
-        this.rom = game; // might not have to do this
         this.memory = new MMU(this,game);
 
         }
@@ -17,6 +16,7 @@
     CPU.prototype.loadROM = function(data) {
 
         // send this down to MMU
+        this.memory.loadROM(data);
 
     };
 

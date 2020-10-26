@@ -5,15 +5,13 @@
 
     function gameBoy() {
         //start code based of Alex Dickerson's NES project to provide a good starting point while learning javaScript
-        this.cpu = new CPU(this);
-        this.rom = null;
+        this.cpu = new CPU();
         }
     
 
 
     gameBoy.prototype.loadROM = function(data) {
-        this.ROM = new ROM(this);
-        this.ROM.load(data);
+        this.cpu.loadROM(data);
         this.reset();
     };
 

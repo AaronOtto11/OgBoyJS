@@ -15,7 +15,7 @@
 
 
 
-    function MMU(cpu,game) { // memory is byte addressable as far as I'm aware so storing by byte seems like the best option
+    function MMU(cpu) { // memory is byte addressable as far as I'm aware so storing by byte seems like the best option
         //could make one large array but this will be easier to debug hopefully 
         this.passedCPU=cpu;
         this.isStartup=true;
@@ -32,11 +32,11 @@
     
 
 
-        MMU.prototype.loadROM = function(data) {
+        MMU.prototype.loadROM = function(game) {
 
             //needs to be a call to load into the rom class
             //rom class will be a class that handles the Memory Banks
-
+            this.rom = new ROM(game);
 
         };
 
@@ -56,6 +56,8 @@
                         isStartup=false;
                     } 
                     //trying to access cartridge rom
+
+                    return rom.getROM(addr);
                     //this will be handled by rom class's mbc
                     break;
                 case (addr<0xA000):
@@ -103,19 +105,20 @@
                     isStartup=false;
                 } 
                 //trying to access cartridge rom
+                this.rom.writeRom(addr,data);
                 //this will be handled by rom class's mbc
                 break;
             case (addr<0xA000):
                 //vram
-                return vRam[addr-0x8000]; //this should start the address spae at 0 to access the correct area in the array
+                vRam[addr-0x8000]= data; //this should start the address spae at 0 to access the correct area in the array
                 break;
             case (addr<0xC000):
                 //exRam
-                return exRam[addr-0xA000]; //this should start the address spae at 0 to access the correct area in the array
+                exRam[addr-0xA000] =  data; //this should start the address spae at 0 to access the correct area in the array
                 break;
             case (addr<0xE000):
                 //wram
-                return wRam[addr-0xC000]; //this should start the address spae at 0 to access the correct area in the array
+                wRam[addr-0xC000] = data; //this should start the address spae at 0 to access the correct area in the array
                 break;
             case (addr<0xFE00):
                 //shadow wram
@@ -123,15 +126,15 @@
                 break;
             case (addr<0xFF00):
                 //sprites
-                return sprites[addr-0xFE00]; //this should start the address spae at 0 to access the correct area in the array
+                sprites[addr-0xFE00]= data; //this should start the address spae at 0 to access the correct area in the array
                 break;
             case (addr<0xFF80):
                 //io
-                return ioReg[addr-0xFF00]; //this should start the address spae at 0 to access the correct area in the array
+                ioReg[addr-0xFF00] = data; //this should start the address spae at 0 to access the correct area in the array
                 break;
             case (addr<=0xFFFF):
                 //high ram
-                return highRam[addr-0xFF80]; //this should start the address spae at 0 to access the correct area in the array
+                highRam[addr-0xFF80]= data; //this should start the address spae at 0 to access the correct area in the array
                 break;
 
         }

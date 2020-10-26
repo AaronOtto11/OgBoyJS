@@ -23,6 +23,24 @@
 
     };
 
+    ROM.prototype.getROM = function(addr) { 
+
+        
+        return romArray[addr];
+
+        
+
+    };
+
+    ROM.prototype.writeROM = function(addr, data) { //rarely used until banks are implemented
+
+        
+        romArray[addr]=data; //maybe an if here if its over a certain value to go to a bank
+
+        
+
+    };
+
 
 
     module.exports = ROM;
