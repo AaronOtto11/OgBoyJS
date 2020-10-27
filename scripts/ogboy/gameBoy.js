@@ -15,8 +15,8 @@
         this.reset();
     };
 
-    gameBoy.prototype.runOneCycle = function() {
-        this.cpu.runOneCycle();
+    gameBoy.prototype.step = function() {
+        this.cpu.step();
     };
 
     gameBoy.prototype.reset = function() {

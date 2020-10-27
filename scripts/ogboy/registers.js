@@ -2,25 +2,22 @@
 
 
     var regs;
+    var halfCarry;
+    var carry;
+    var negative;
+    var setZeroFlag;
     var stackPointerAndProgramCounter;
-    const reg = {
-        A: 0,
-        F: 1,
-        B: 2,
-        C: 3,
-        D: 4,
-        E: 5,
-        H: 6,
-        L: 7,
-        SP: 0,
-        PC: 1
 
-    }
 
     function Registers() {
 
-        this.regs = Uint8Array(8);
+        this.regs = Uint8Array(7);
         this.stackPointerAndProgramCounter = Uint16Array(2);
+        this.halfCarry=0;
+        this.carry=0;
+        this.negative=0;
+        this.setZeroFlag=0;
+
 
         }
 
@@ -74,34 +71,91 @@
 
     registers.prototype.setStackPointer = function(address) {//function name says what it does
 
-        stackPointerAndProgramCounter[reg.SP]=address;
+        stackPointerAndProgramCounter[0]=address;
 
     };
 
     registers.prototype.getStackPointer = function() {//function name says what it does
 
-        return stackPointerAndProgramCounter[reg.SP];
+        return stackPointerAndProgramCounter[0];
 
     };
 
     registers.prototype.advancePC = function(jumpAmount) { // this will advance the PC by the normal amount (I believe 4 bytes but will check before implementing)
 
-        stackPointerAndProgramCounter[reg.PC]= stackPointerAndProgramCounter[reg.PC]+jumpAmount;
+        stackPointerAndProgramCounter[1]= stackPointerAndProgramCounter[reg.PC]+jumpAmount;
 
     };
 
     registers.prototype.setPC = function(address) { // function name says what it does
 
-        stackPointerAndProgramCounter[reg.PC]=address;
+        stackPointerAndProgramCounter[1]=address;
 
 
     };
 
     registers.prototype.getPC = function() {//function name says what it does
 
-        return stackPointerAndProgramCounter[reg.PC];
+        return stackPointerAndProgramCounter[1];
 
     };
+
+
+    registers.prototype.setZeroFlag = function(flag) {//function name says what it does
+
+        this.zero=flag;
+
+    };
+
+    registers.prototype.setNegativeFlag = function(flag) {//function name says what it does
+
+        this.negative=flag;
+
+    };
+
+    registers.prototype.setHalfCarryFlag = function(flag) {//function name says what it does
+
+        this.halfCarry=flag;
+
+    };
+
+
+    registers.prototype.setCarryFlag = function(flag) {//function name says what it does
+
+        this.carry=flag;
+
+    };
+
+
+
+
+    registers.prototype.getZeroFlag = function(flag) {//function name says what it does
+
+        return this.zero;
+
+    };
+
+    registers.prototype.getNegativeFlag = function(flag) {//function name says what it does
+
+        return this.negative;
+
+    };
+
+    registers.prototype.getHalfCarryFlag = function(flag) {//function name says what it does
+
+        return this.halfCarry;
+
+    };
+
+
+    registers.prototype.getCarryFlag = function(flag) {//function name says what it does
+
+       return this.carry;
+
+    };
+
+
+
 
     module.exports = Registers;
 })();
