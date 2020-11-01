@@ -32,6 +32,22 @@
 
     };
 
+    
+    ROM.prototype.getSixteenROM = function(addr) { 
+
+        
+        //return romArray[addr];
+
+        var temp = 0;
+        temp= romArray[addr]<<8;
+        temp= temp | romArray[addr+1];
+
+        return temp;
+
+        
+
+    };
+
     ROM.prototype.writeROM = function(addr, data) { //rarely used until banks are implemented
 
         

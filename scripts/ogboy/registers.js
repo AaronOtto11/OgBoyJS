@@ -21,7 +21,7 @@
 
         }
 
-    registers.prototype.writeToSixteenReg = function(whatReg,data) { //pass the high reg
+    registers.prototype.writeSixteenReg = function(whatReg,data) { //pass the high reg
 
            
             //bitwise operation will be needed 
@@ -83,7 +83,7 @@
 
     registers.prototype.advancePC = function(jumpAmount) { // this will advance the PC by the normal amount (I believe 4 bytes but will check before implementing)
 
-        stackPointerAndProgramCounter[1]= stackPointerAndProgramCounter[reg.PC]+jumpAmount;
+        stackPointerAndProgramCounter[1]= stackPointerAndProgramCounter[1]+jumpAmount;
 
     };
 
@@ -99,6 +99,8 @@
         return stackPointerAndProgramCounter[1];
 
     };
+
+
 
 
     registers.prototype.setZeroFlag = function(flag) {//function name says what it does
