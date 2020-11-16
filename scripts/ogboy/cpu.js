@@ -369,15 +369,100 @@
                 return 12;
 
 
+                case 0x0C: //inc C
+                this.isHalfCarry(this.registers.getReg(reg.C),1);
+                if(this.registers.getReg(reg.C)+1<255) // might not need this
+                {
+                    this.registers.writeReg(reg.C,this.registers.getReg(reg.C)+1); 
+
+                }
+                else
+                {
+                   this.registers.writeReg(reg.C,this.registers.getReg(reg.C)&0x0FF); // if this doesn't work then use the other commented out line
+                   //have to do this because no set data type in JS
+                  //  this.registers.setCarryFlag(1); carry flag not set on inc
+                }
+                if (this.registers.getReg(reg.C)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                this.registers.setNegativeFlag(0);
+                this.registers.advancePC(1);
+                return 4;
+
+            case 0x1C: //inc E
+                this.isHalfCarry(this.registers.getReg(reg.E),1);
+                if(this.registers.getReg(reg.E)+1<255) // might not need this
+                {
+                    this.registers.writeReg(reg.E,this.registers.getReg(reg.E)+1); 
+
+                }
+                else
+                {
+                this.registers.writeReg(reg.E,this.registers.getReg(reg.E)&0x0FF); // if this doesn't work then use the other commented out line
+                //have to do this because no set data type in JS
+                //  this.registers.setCarryFlag(1); carry flag not set on inc
+                }
+                if (this.registers.getReg(reg.E)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                this.registers.setNegativeFlag(0);
+                this.registers.advancePC(1);
+                return 4;
+
+            case 0x2C: //inc L
+                this.isHalfCarry(this.registers.getReg(reg.L),1);
+                if(this.registers.getReg(reg.L)+1<255) // might not need this
+                {
+                    this.registers.writeReg(reg.L,this.registers.getReg(reg.L)+1); 
+
+                }
+                else
+                {
+                this.registers.writeReg(reg.L,this.registers.getReg(reg.L)&0x0FF); // if this doesn't work then use the other commented out line
+                //have to do this because no set data type in JS
+                //  this.registers.setCarryFlag(1); carry flag not set on inc
+                }
+                if (this.registers.getReg(reg.L)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                this.registers.setNegativeFlag(0);
+                this.registers.advancePC(1);
+                return 4;
+
+                
+            case 0x3C: //inc A
+            this.isHalfCarry(this.registers.getReg(reg.A),1);
+            if(this.registers.getReg(reg.A)+1<255) // might not need this
+            {
+                this.registers.writeReg(reg.A,this.registers.getReg(reg.A)+1); 
+
+            }
+            else
+            {
+            this.registers.writeReg(reg.A,this.registers.getReg(reg.A)&0x0FF); // if this doesn't work then use the other commented out line
+            //have to do this because no set data type in JS
+            //  this.registers.setCarryFlag(1); carry flag not set on inc
+            }
+            if (this.registers.getReg(reg.A)==0)
+            {
+                this.registers.setZeroFlag(1);
+            }
+            this.registers.setNegativeFlag(0);
+            this.registers.advancePC(1);
+            return 4;
+
+
+
 
 
             //8 bit dec
 
-                
-
             case 0x05: //dec B
             this.isHalfCarry(this.registers.getReg(reg.B),-1);
-            if(this.registers.getReg(reg.B)-1<255) // might not need this
+            if(this.registers.getReg(reg.B)-1<0) // might not need this
             {
                 this.registers.writeReg(reg.B,this.registers.getReg(reg.B)-1); 
 
@@ -396,9 +481,9 @@
             this.registers.advancePC(1);
             return 4;
 
-        case 0x15: //inc D
+        case 0x15: //dec D
             this.isHalfCarry(this.registers.getReg(reg.D),-1);
-            if(this.registers.getReg(reg.D)+1<255) // might not need this
+            if(this.registers.getReg(reg.D)-1<0) // might not need this
             {
                 this.registers.writeReg(reg.D,this.registers.getReg(reg.D)-1); 
 
@@ -417,9 +502,9 @@
             this.registers.advancePC(1);
             return 4;
 
-        case 0x25: //inc H
+        case 0x25: //dec H
             this.isHalfCarry(this.registers.getReg(reg.H),-1);
-            if(this.registers.getReg(reg.H)-1<255) // might not need this
+            if(this.registers.getReg(reg.H)-1<0) // might not need this
             {
                 this.registers.writeReg(reg.H,this.registers.getReg(reg.H)-1); 
 
@@ -438,11 +523,11 @@
             this.registers.advancePC(1);
             return 4;
 
-        case 0x35: //inc reference HL
+        case 0x35: //dec reference HL
             var addr=this.registers.readSixteenReg(reg.H);
             var reference=this.memory.readAddr(addr);
             this.isHalfCarry(reference,-1);
-            if(reference+1<255) // might not need this
+            if(reference-1<0) // might not need this
             {
                 this.memory.writeAddr(addr,reference+1); 
 
@@ -461,6 +546,97 @@
             this.registers.advancePC(1);
             return 12;
             
+
+
+            case 0x0D: //dec C
+            this.isHalfCarry(this.registers.getReg(reg.C),-1);
+            if(this.registers.getReg(reg.C)-1<0) // might not need this
+            {
+                this.registers.writeReg(reg.C,this.registers.getReg(reg.C)-1); 
+
+            }
+            else
+            {
+                this.registers.writeReg(reg.C,this.registers.getReg(reg.C)&0x0FF); // if this doesn't work then use the other commented out line
+                //have to do this because no set data type in JS
+                //  this.registers.setCarryFlag(1); carry flag not set on inc
+            }
+            if (this.registers.getReg(reg.C)==0)
+            {
+                this.registers.setZeroFlag(1);
+            }
+            this.registers.setNegativeFlag(1);
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0x1D: //dec E
+            this.isHalfCarry(this.registers.getReg(reg.E),-1);
+            if(this.registers.getReg(reg.E)-1<0) // might not need this
+            {
+                this.registers.writeReg(reg.E,this.registers.getReg(reg.E)-1); 
+
+            }
+            else
+            {
+            this.registers.writeReg(reg.E,this.registers.getReg(reg.E)&0x0FF); // if this doesn't work then use the other commented out line
+            //have to do this because no set data type in JS
+            //  this.registers.setCarryFlag(1); carry flag not set on inc
+            }
+            if (this.registers.getReg(reg.E)==0)
+            {
+                this.registers.setZeroFlag(1);
+            }
+            this.registers.setNegativeFlag(1);
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0x2D: //dec L
+            this.isHalfCarry(this.registers.getReg(reg.L),-1);
+            if(this.registers.getReg(reg.L)-1<0) // might not need this
+            {
+                this.registers.writeReg(reg.L,this.registers.getReg(reg.L)-1); 
+
+            }
+            else
+            {
+            this.registers.writeReg(reg.L,this.registers.getReg(reg.L)&0x0FF); // if this doesn't work then use the other commented out line
+            //have to do this because no set data type in JS
+            //  this.registers.setCarryFlag(1); carry flag not set on inc
+            }
+            if (this.registers.getReg(reg.L)==0)
+            {
+                this.registers.setZeroFlag(1);
+            }
+            this.registers.setNegativeFlag(1);
+            this.registers.advancePC(1);
+            return 4;
+
+
+            case 0x3D: //dec A
+            this.isHalfCarry(this.registers.getReg(reg.A),-1);
+            if(this.registers.getReg(reg.A)-1<0) // might not need this
+            {
+                this.registers.writeReg(reg.A,this.registers.getReg(reg.A)-1); 
+
+            }
+            else
+            {
+                this.registers.writeReg(reg.A,this.registers.getReg(reg.A)&0x0FF); // if this doesn't work then use the other commented out line
+                //have to do this because no set data type in JS
+                //  this.registers.setCarryFlag(1); carry flag not set on inc
+            }
+            if (this.registers.getReg(reg.A)==0)
+            {
+                this.registers.setZeroFlag(1);
+            }
+            this.registers.setNegativeFlag(1);
+            this.registers.advancePC(1);
+            return 4;
+
+       
+
+
+
 
             //ld immediate 8 
 
@@ -491,27 +667,54 @@
                 this.registers.advancePC(2);
                 return 12;
 
+          
+          
+            case 0x0E: //ld C, immediate 8
+                var immediate = this.rom.getRom(registers.getPC()+1);
+                this.registers.writeReg(reg.C,immediate);
+                this.registers.advancePC(2);
+                return 8;
+
+            case 0x1E: //ld E, immediate 8
+                var immediate = this.rom.getRom(registers.getPC()+1);
+                this.registers.writeReg(reg.E,immediate);
+                this.registers.advancePC(2);
+                return 8;
 
 
+            case 0x2E: //ld L, immediate 8
+                var immediate = this.rom.getRom(registers.getPC()+1);
+                this.registers.writeReg(reg.L,immediate);
+                this.registers.advancePC(2);
+                return 8;
 
 
+            case 0x3E: //ld A, immediate 8
+                var immediate = this.rom.getRom(registers.getPC()+1);
+                this.registers.writeReg(reg.A,immediate);
+                this.registers.advancePC(2);
+                return 8;
 
             
             
+
+//rolls 
+
+
             case 0x07: //rlca
                 //0x80
                 this.registers.setCarryFlag(0);
                 this.registers.setNegativeFlag(0);
                 this.registers.setHalfCarryFlag(0);
-                if(this.registers.getReg(reg.A)&0x80==80)
+                if(this.registers.getReg(reg.A)&0x80==0x80)
                 {
                     this.registers.setCarryFlag(1);
-                    this.registers.writeReg(reg.B,((this.registers.getReg(reg.B)<<1)&0x0FF)|0x01);
+                    this.registers.writeReg(reg.A,((this.registers.getReg(reg.A)<<1)&0x0FF)|0x01);
                     this.registers.advancePC(1);
                     return 4;
 
                 }
-                this.registers.writeReg(reg.A,this.registers.getReg(reg.B)<<1);
+                this.registers.writeReg(reg.A,this.registers.getReg(reg.A)<<1);
                 this.registers.setCarryFlag(0);
                 this.registers.advancePC(1);
                 return 4;
@@ -519,30 +722,101 @@
 
             case 0x17: // rla
                 //0x80
-                if(this.registers.getReg(reg.A)&0x80==0x80)
+              
+                if(this.registers.getCarryFlag()==1)
                 {
-                    this.registers.setCarryFlag(1);
-                    if(this.registers.getCarryFlag()==1)
+                
+                    if(this.registers.getReg(reg.A)&0x80==0x80)
                     {
+                        this.registers.setCarryFlag(1);
                         this.registers.writeReg(reg.A,((this.registers.getReg(reg.B)<<1)&0x0FF)|0x01);
                         this.registers.advancePC(1);
                         return 4;
+
                     }
+                    this.registers.setCarryFlag(0);
+                    this.registers.writeReg(reg.A,((this.registers.getReg(reg.B)<<1)&0x0FF)|0x01);
+                    this.registers.advancePC(1);
+                    return 4;
+                }
+                else //carry flag is 0
+                {
+                    if(this.registers.getReg(reg.A)&0x80==0x80)
+                    {
+                        this.registers.setCarryFlag(1);
+                        this.registers.writeReg(reg.A,((this.registers.getReg(reg.B)<<1)&0x0FF)); //should set bit 0 to 0
+                        //it is already filled with a 0 
+                        this.registers.advancePC(1);
+                        return 4;
+
+                    }
+                    this.registers.setCarryFlag(0);
                     this.registers.writeReg(reg.A,((this.registers.getReg(reg.B)<<1)&0x0FF));
                     this.registers.advancePC(1);
                     return 4;
 
                 }
+
+
+
+            case 0x0F: //rrca
+            //0x01
                 this.registers.setCarryFlag(0);
+                this.registers.setNegativeFlag(0);
+                this.registers.setHalfCarryFlag(0);
+                if(this.registers.getReg(reg.A)&0x01==0x01)
+                {
+                    this.registers.setCarryFlag(1);
+                    this.registers.writeReg(reg.A,((this.registers.getReg(reg.A)>>>1)&0x0FF)|0x80);
+                    this.registers.advancePC(1);
+                    return 4;
+
+                }
+                this.registers.writeReg(reg.A,this.registers.getReg(reg.A)>>>1);
+                this.registers.setCarryFlag(0);
+                this.registers.advancePC(1);
+                return 4;
+
+
+            case 0x1F: // rra
+                //0x01
                 if(this.registers.getCarryFlag()==1)
                 {
-                    this.registers.writeReg(reg.A,((this.registers.getReg(reg.B)<<1)&0x0FF)|0x01);
+                
+                    if(this.registers.getReg(reg.A)&0x01==0x01)
+                    {
+                        this.registers.setCarryFlag(1);
+                        this.registers.writeReg(reg.A,((this.registers.getReg(reg.B)>>>1)&0x0FF)|0x80);
+                        this.registers.advancePC(1);
+                        return 4;
+
+                    }
+                    this.registers.setCarryFlag(0);
+                    this.registers.writeReg(reg.A,((this.registers.getReg(reg.B)>>>1)&0x0FF)|0x80);
                     this.registers.advancePC(1);
                     return 4;
                 }
-                this.registers.writeReg(reg.A,this.registers.getReg(reg.B)<<1);
-                this.registers.advancePC(1);
-                return 4;
+                else //carry flag is 0
+                {
+                    if(this.registers.getReg(reg.A)&0x01==0x01)
+                    {
+                        this.registers.setCarryFlag(1);
+                        this.registers.writeReg(reg.A,((this.registers.getReg(reg.B)>>>1)&0x0FF)); //should set bit 0 to 0
+                        //it is already filled with a 0 
+                        this.registers.advancePC(1);
+                        return 4;
+
+                    }
+                    this.registers.setCarryFlag(0);
+                    this.registers.writeReg(reg.A,((this.registers.getReg(reg.B)>>>1)&0x0FF));
+                    this.registers.advancePC(1);
+                    return 4;
+
+                }
+
+
+
+
 
 
 
@@ -586,9 +860,7 @@
 
 
 
-            // ref to 8-bit reg A
-
-                
+            // ref to 8-bit reg A 
             case 0x0A: //bc
                 var addr=this.registers.readSixteenReg(reg.B);
                 var reference=this.memory.readAddr(addr);
