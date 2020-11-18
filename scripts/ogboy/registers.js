@@ -28,9 +28,9 @@
             //AND for low and bitshitft plus an AND  with 0x00FF for high
             var lo = data;
             var hi = data;
-            regs[whatReg+1]= lo & 0x00FF;
+            regs[whatReg+1]= lo & 0x0000000F;
             hi = hi >>> 8; 
-            regs[whatReg] = hi & 0x00FF;
+            regs[whatReg] = hi & 0x0000000F;
                          
 
    
@@ -53,7 +53,7 @@
     registers.prototype.writeReg = function(whatReg,data) { // writes to 8 bit reg
 
 
-        regs[whatReg]=data;
+        regs[whatReg]=data&0x0000000F;
 
 
 
@@ -131,26 +131,26 @@
 
 
 
-    registers.prototype.getZeroFlag = function(flag) {//function name says what it does
+    registers.prototype.getZeroFlag = function() {//function name says what it does
 
         return this.zero;
 
     };
 
-    registers.prototype.getNegativeFlag = function(flag) {//function name says what it does
+    registers.prototype.getNegativeFlag = function() {//function name says what it does
 
         return this.negative;
 
     };
 
-    registers.prototype.getHalfCarryFlag = function(flag) {//function name says what it does
+    registers.prototype.getHalfCarryFlag = function() {//function name says what it does
 
         return this.halfCarry;
 
     };
 
 
-    registers.prototype.getCarryFlag = function(flag) {//function name says what it does
+    registers.prototype.getCarryFlag = function() {//function name says what it does
 
        return this.carry;
 
