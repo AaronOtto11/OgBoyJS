@@ -28,9 +28,9 @@
             //AND for low and bitshitft plus an AND  with 0x00FF for high
             var lo = data;
             var hi = data;
-            regs[whatReg+1]= lo & 0x0000000F;
+            regs[whatReg+1]= lo & 0x000000FF;
             hi = hi >>> 8; 
-            regs[whatReg] = hi & 0x0000000F;
+            regs[whatReg] = hi & 0x000000FF;
                          
 
    
@@ -53,7 +53,7 @@
     registers.prototype.writeReg = function(whatReg,data) { // writes to 8 bit reg
 
 
-        regs[whatReg]=data&0x0000000F;
+        regs[whatReg]=data&0x000000FF;
 
 
 

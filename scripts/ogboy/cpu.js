@@ -151,16 +151,14 @@
     CPU.prototype.eightAdd= function(num1,num2){
         var retNum = 0
         this.isHalfCarry(num1,num2);
-        if(this.isEightCarryAdd(num1+num2))
+        if(this.isEightCarryAdd(num1,num2))
         {
             retNum = num1+num2;
         }
         else
         {
-           // this.registers.writeReg(reg.B,this.registers.getReg(reg.B)-255);  //if overflow happens makes sure it becomes 0
-           retNum = (num1+num2)&0x0FF; // if this doesn't work then use the other commented out line
-           //have to do this because no set data type in JS
-          //  this.registers.setCarryFlag(1); carry flag not set on inc
+           
+           retNum = (num1+num2)&&0x000000FF; 
         }
         if (retNum==0)
         {
@@ -185,6 +183,49 @@
         {
         
             retNum=num1+num2;
+
+        }
+        this.registers.setNegativeFlag(0);
+        return retNum;
+ 
+     };
+
+
+     CPU.prototype.eightSub= function(num1,num2){
+        var retNum = 0
+        this.isHalfCarry(num1,num2);
+        if(this.isEightCarrySub(num1,num2))
+        {
+            retNum = (num1-num2)&0x000000FF;
+        }
+        else
+        {
+           retNum = (num1-num2); 
+
+        }
+        if (retNum==0)
+        {
+            this.registers.setZeroFlag(1);
+        }
+        this.registers.setNegativeFlag(1);
+        return retNum;
+ 
+ 
+     };
+
+    CPU.prototype.sixteenSub= function(num1,num2){
+
+
+        this.isHalfCarry(num1,num2);
+        var retNum=0;
+        if(this.isSixteenCarrySub(num1,num2))
+        {
+           retNum=(num1+num2)&0x0FFFF;
+        }
+        else
+        {
+        
+            retNum=num1-num2;
 
         }
         this.registers.setNegativeFlag(0);
@@ -1108,51 +1149,672 @@
             this.registers.advancePC(1);
             return 8;
 
-// 8 bit write to reference HL
-    case 0x70: //B
-        var addr=this.registers.readSixteenReg(reg.H);
-        this.memory.writeAddr(addr,this.reg.B);
-        return 8;
+    // 8 bit write to reference HL
+        case 0x70: //B
+            var addr=this.registers.readSixteenReg(reg.H);
+            this.memory.writeAddr(addr,this.reg.B);
+            this.registers.advancePC(1);
+            return 8;
 
 
-    case 0x70: //C
-        var addr=this.registers.readSixteenReg(reg.H);
-        this.memory.writeAddr(addr,this.reg.C);
-        return 8;
+        case 0x70: //C
+            var addr=this.registers.readSixteenReg(reg.H);
+            this.memory.writeAddr(addr,this.reg.C);
+            this.registers.advancePC(1);
+            return 8;
 
 
-    case 0x70://D
-        var addr=this.registers.readSixteenReg(reg.H);
-        this.memory.writeAddr(addr,this.reg.D);
-        return 8;
+        case 0x70://D
+            var addr=this.registers.readSixteenReg(reg.H);
+            this.memory.writeAddr(addr,this.reg.D);
+            this.registers.advancePC(1);
+            return 8;
 
-    case 0x70://E
-        var addr=this.registers.readSixteenReg(reg.H);
-        this.memory.writeAddr(addr,this.reg.E);
-        return 8;
-
-
-    case 0x70: //H
-        var addr=this.registers.readSixteenReg(reg.H);
-        this.memory.writeAddr(addr,this.reg.H);
-        return 8;
+        case 0x70://E
+            var addr=this.registers.readSixteenReg(reg.H);
+            this.memory.writeAddr(addr,this.reg.E);
+            this.registers.advancePC(1);
+            return 8;
 
 
-    case 0x70: //L
-        var addr=this.registers.readSixteenReg(reg.H);
-        this.memory.writeAddr(addr,this.reg.L);
-        return 8;
+        case 0x70: //H
+            var addr=this.registers.readSixteenReg(reg.H);
+            this.memory.writeAddr(addr,this.reg.H);
+            this.registers.advancePC(1);
+            return 8;
 
 
-    case 0x70: //A
-        var addr=this.registers.readSixteenReg(reg.H);
-        this.memory.writeAddr(addr,this.reg.A);
-        return 8;
+        case 0x70: //L
+            var addr=this.registers.readSixteenReg(reg.H);
+            this.memory.writeAddr(addr,this.reg.L);
+            this.registers.advancePC(1);
+            return 8;
+
+
+        case 0x70: //A
+            var addr=this.registers.readSixteenReg(reg.H);
+            this.memory.writeAddr(addr,this.reg.A);
+            this.registers.advancePC(1);
+            return 8;
+
+
+    //8 bit add
+
+    //A
+        case 0x80: //b
+            var added = this.eightAdd(this.registers.getReg(reg.A),this.registers.getReg(reg.B));
+            this.registers.writeReg(reg.A,added);
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0x81: //c
+            var added = this.eightAdd(this.registers.getReg(reg.A),this.registers.getReg(reg.C));
+            this.registers.writeReg(reg.A,added);
+            this.registers.advancePC(1);
+            return 4;
+
+
+        case 0x82: //d
+            var added = this.eightAdd(this.registers.getReg(reg.A),this.registers.getReg(reg.D));
+            this.registers.writeReg(reg.A,added);
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0x83://e
+            var added = this.eightAdd(this.registers.getReg(reg.A),this.registers.getReg(reg.E));
+            this.registers.writeReg(reg.A,added);
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0x84://h
+            var added = this.eightAdd(this.registers.getReg(reg.A),this.registers.getReg(reg.H));
+            this.registers.writeReg(reg.A,added);
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0x85://l
+            var added = this.eightAdd(this.registers.getReg(reg.A),this.registers.getReg(reg.L));
+            this.registers.writeReg(reg.A,added);
+            this.registers.advancePC(1);
+            return 4;
+
+
+        case 0x86: //reference HL
+            var addr=this.registers.readSixteenReg(reg.H);
+            var reference= this.memory.readAddr(addr);
+            var added = this.eightAdd(this.registers.getReg(reg.A),reference);
+            this.registers.writeReg(reg.A,added);
+            this.registers.advancePC(1);
+            return 8;
+
+        case 0x87://A
+            var added = this.eightAdd(this.registers.getReg(reg.A),this.registers.getReg(reg.A));
+            this.registers.writeReg(reg.A,added);
+            this.registers.advancePC(1);
+            return 4;
+            
+    //ADC
+        case 0x88: //b
+            var added = this.eightAdd(this.registers.getReg(reg.A),this.registers.getReg(reg.B)+this.registers.getCarryFlag());
+            this.registers.writeReg(reg.A,added);
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0x89: //c
+            var added = this.eightAdd(this.registers.getReg(reg.A),this.registers.getReg(reg.C)+this.registers.getCarryFlag());
+            this.registers.writeReg(reg.A,added);
+            this.registers.advancePC(1);
+            return 4;
+
+
+        case 0x8A: //d
+            var added = this.eightAdd(this.registers.getReg(reg.A),this.registers.getReg(reg.D)+this.registers.getCarryFlag());
+            this.registers.writeReg(reg.A,added);
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0x8B://e
+            var added = this.eightAdd(this.registers.getReg(reg.A),this.registers.getReg(reg.E)+this.registers.getCarryFlag());
+            this.registers.writeReg(reg.A,added);
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0x8C://h
+            var added = this.eightAdd(this.registers.getReg(reg.A),this.registers.getReg(reg.H)+this.registers.getCarryFlag());
+            this.registers.writeReg(reg.A,added);
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0x8D://l
+            var added = this.eightAdd(this.registers.getReg(reg.A),this.registers.getReg(reg.L)+this.registers.getCarryFlag());
+            this.registers.writeReg(reg.A,added);
+            this.registers.advancePC(1);
+            return 4;
+
+
+        case 0x8E: //reference HL
+            var addr=this.registers.readSixteenReg(reg.H);
+            var reference= this.memory.readAddr(addr);
+            var added = this.eightAdd(this.registers.getReg(reg.A),reference+this.registers.getCarryFlag());
+            this.registers.writeReg(reg.A,added);
+            this.registers.advancePC(1);
+            return 8;
+            
+        case 0x8D://A
+            var added = this.eightAdd(this.registers.getReg(reg.A),this.registers.getReg(reg.L)+this.registers.getCarryFlag());
+            this.registers.writeReg(reg.A,added);
+            this.registers.advancePC(1);
+            return 4;
+
+
+    //8 bit subs
+
+    //A
+        case 0x90: //b
+            var subbed = this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.B));
+            this.registers.writeReg(reg.A,subbed);
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0x91: //c
+            var subbed = this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.C));
+            this.registers.writeReg(reg.A,subbed);
+            this.registers.advancePC(1);
+            return 4;
+
+
+        case 0x92: //d
+            var subbed = this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.D));
+            this.registers.writeReg(reg.A,subbed);
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0x93://e
+            var subbed = this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.E));
+            this.registers.writeReg(reg.A,subbed);
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0x94://h
+            var subbed = this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.H));
+            this.registers.writeReg(reg.A,subbed);
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0x95://l
+            var subbed = this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.L));
+            this.registers.writeReg(reg.A,subbed);
+            this.registers.advancePC(1);
+            return 4;
+
+
+        case 0x96: //reference HL
+            var addr=this.registers.readSixteenReg(reg.H);
+            var reference= this.memory.readAddr(addr);
+            var subbed = this.eightSub(this.registers.getReg(reg.A),reference);
+            this.registers.writeReg(reg.A,subbed);
+            this.registers.advancePC(1);
+            return 8;
+
+        case 0x97://A
+            var subbed = this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.A));
+            this.registers.writeReg(reg.A,subbed);
+            this.registers.advancePC(1);
+            return 4;
+
+        //SBC
+        case 0x99: //b
+            var subbed = this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.B)-this.registers.getCarryFlag());
+            this.registers.writeReg(reg.A,subbed);
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0x99: //c
+            var subbed = this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.C)-this.registers.getCarryFlag());
+            this.registers.writeReg(reg.A,subbed);
+            this.registers.advancePC(1);
+            return 4;
+
+
+        case 0x9A: //d
+            var subbed = this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.D)-this.registers.getCarryFlag());
+            this.registers.writeReg(reg.A,subbed);
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0x9B://e
+            var subbed = this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.E)-this.registers.getCarryFlag());
+            this.registers.writeReg(reg.A,subbed);
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0x9C://h
+            var subbed = this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.H)-this.registers.getCarryFlag());
+            this.registers.writeReg(reg.A,subbed);
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0x9D://l
+            var subbed = this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.L)-this.registers.getCarryFlag());
+            this.registers.writeReg(reg.A,subbed);
+            this.registers.advancePC(1);
+            return 4;
+
+
+        case 0x9E: //reference HL
+            var addr=this.registers.readSixteenReg(reg.H);
+            var reference= this.memory.readAddr(addr);
+            var subbed = this.eightSub(this.registers.getReg(reg.A),reference-this.registers.getCarryFlag());
+            this.registers.writeReg(reg.A,subbed);
+            this.registers.advancePC(1);
+            return 8;
+
+        case 0x9D://A
+            var subbed = this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.L)-this.registers.getCarryFlag());
+            this.registers.writeReg(reg.A,subbed);
+            this.registers.advancePC(1);
+            return 4;
+
+
+
+    //8 bit and
+        case 0xA0:
+            this.registers.setZeroFlag(0);
+            var anded = (this.registers.getReg(reg.A))&(this.registers.getReg(reg.B));
+            if (anded==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,anded);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(1);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+
+        case 0xA1:
+            this.registers.setZeroFlag(0);
+            var anded = (this.registers.getReg(reg.A))&(this.registers.getReg(reg.C));
+            if (anded==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,anded);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(1);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0xA2:
+            this.registers.setZeroFlag(0);
+            var anded = (this.registers.getReg(reg.A))&(this.registers.getReg(reg.D));
+            if (anded==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,anded);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(1);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0xA3:
+            this.registers.setZeroFlag(0);
+            var anded = (this.registers.getReg(reg.A))&(this.registers.getReg(reg.E));
+            if (anded==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,anded);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(1);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+
+        case 0xA4:
+            this.registers.setZeroFlag(0);
+            var anded = (this.registers.getReg(reg.A))&(this.registers.getReg(reg.H));
+            if (anded==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,anded);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(1);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0xA5:
+            this.registers.setZeroFlag(0);
+            var anded = (this.registers.getReg(reg.A))&(this.registers.getReg(reg.L));
+            if (anded==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,anded);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(1);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0xA6: //reference hl
+            var addr=this.registers.readSixteenReg(reg.H);
+            var reference= this.memory.readAddr(addr);
+            this.registers.setZeroFlag(0);
+            var anded = (this.registers.getReg(reg.A))&(reference);
+            if (anded==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,anded);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(1);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 8;
+
+        case 0xA6:
+            this.registers.setZeroFlag(0);
+            var anded = (this.registers.getReg(reg.A))&(this.registers.getReg(reg.A));
+            if (anded==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,anded);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(1);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+
+    //8 bit xor  // dont need to worry about bitmasking as it should already be in the write
+        case 0xA8:
+            this.registers.setZeroFlag(0);
+            var xored = (this.registers.getReg(reg.A))^(this.registers.getReg(reg.B));
+            if (xored==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,xored);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(0);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+
+        case 0xA9:
+            this.registers.setZeroFlag(0);
+            var xored = (this.registers.getReg(reg.A))^(this.registers.getReg(reg.C));
+            if (xored==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,xored);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(0);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0xAA:
+            this.registers.setZeroFlag(0);
+            var xored = (this.registers.getReg(reg.A))^(this.registers.getReg(reg.D));
+            if (xored==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,xored);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(0);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0xAB:
+            this.registers.setZeroFlag(0);
+            var xored = (this.registers.getReg(reg.A))^(this.registers.getReg(reg.E));
+            if (xored==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,xored);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(0);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+
+        case 0xAC:
+            this.registers.setZeroFlag(0);
+            var xored = (this.registers.getReg(reg.A))^(this.registers.getReg(reg.H));
+            if (xored==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,xored);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(0);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0xAD:
+            this.registers.setZeroFlag(0);
+            var xored = (this.registers.getReg(reg.A))^(this.registers.getReg(reg.L));
+            if (xored==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,xored);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(0);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0xAE: //reference hl
+            var addr=this.registers.readSixteenReg(reg.H);
+            var reference= this.memory.readAddr(addr);
+            this.registers.setZeroFlag(0);
+            var xored = (this.registers.getReg(reg.A))^(reference);
+            if (xored==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,xored);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(0);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 8;
+
+        case 0xAF:
+            this.registers.setZeroFlag(0);
+            var xored = (this.registers.getReg(reg.A))^(this.registers.getReg(reg.A));
+            if (xored==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,xored);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(0);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
 
 
 
 
-    }
+//8 bit or
+        case 0xB0:
+            this.registers.setZeroFlag(0);
+            var ored = (this.registers.getReg(reg.A))|(this.registers.getReg(reg.B));
+            if (ored==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,ored);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(0);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+
+        case 0xB1:
+            this.registers.setZeroFlag(0);
+            var ored = (this.registers.getReg(reg.A))|(this.registers.getReg(reg.C));
+            if (ored==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,ored);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(0);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0xB2:
+            this.registers.setZeroFlag(0);
+            var ored = (this.registers.getReg(reg.A))|(this.registers.getReg(reg.D));
+            if (ored==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,ored);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(0);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0xB3:
+            this.registers.setZeroFlag(0);
+            var ored = (this.registers.getReg(reg.A))|(this.registers.getReg(reg.E));
+            if (ored==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,ored);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(0);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+
+        case 0xB4:
+            this.registers.setZeroFlag(0);
+            var ored = (this.registers.getReg(reg.A))|(this.registers.getReg(reg.H));
+            if (ored==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,ored);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(0);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0xB5:
+            this.registers.setZeroFlag(0);
+            var ored = (this.registers.getReg(reg.A))|(this.registers.getReg(reg.L));
+            if (ored==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,ored);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(0);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0xB6: //reference hl
+            var addr=this.registers.readSixteenReg(reg.H);
+            var reference= this.memory.readAddr(addr);
+            this.registers.setZeroFlag(0);
+            var ored = (this.registers.getReg(reg.A))|(reference);
+            if (ored==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,ored);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(0);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 8;
+
+        case 0xB6:
+            this.registers.setZeroFlag(0);
+            var ored = (this.registers.getReg(reg.A))|(this.registers.getReg(reg.A));
+            if (ored==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,ored);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(0);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(1);
+            return 4;
+
+
+
+    
+
+        
+
+
+
+
+
+
+
+
+
+
+            }
+    
+
+
 
     };   
 
