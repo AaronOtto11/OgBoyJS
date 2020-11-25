@@ -1527,7 +1527,7 @@
             this.registers.advancePC(1);
             return 8;
 
-        case 0xA6:
+        case 0xA7:
             this.registers.setZeroFlag(0);
             var anded = (this.registers.getReg(reg.A))&(this.registers.getReg(reg.A));
             if (anded==0)
@@ -1781,7 +1781,7 @@
             this.registers.advancePC(1);
             return 8;
 
-        case 0xB6:
+        case 0xB7:
             this.registers.setZeroFlag(0);
             var ored = (this.registers.getReg(reg.A))|(this.registers.getReg(reg.A));
             if (ored==0)
@@ -1796,6 +1796,140 @@
             this.registers.advancePC(1);
             return 4;
 
+
+// CP 
+
+        case 0xB8://A,B
+            this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.B));
+            this.registers.advancePC(1);
+            return 4;
+
+
+        case 0xB9://A,C
+            this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.C));
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0xBA://A,D
+            this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.D));
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0xBB://A,E
+            this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.E));
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0xBC://A,H
+            this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.H));
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0xBD://A,L
+            this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.L));
+            this.registers.advancePC(1);
+            return 4;
+
+        case 0xBE://A,(HL)
+            var addr=this.registers.readSixteenReg(reg.H);
+            var reference= this.memory.readAddr(addr);
+            this.eightSub(this.registers.getReg(reg.A),reference);
+            this.registers.advancePC(1);
+            return 8;
+
+        case 0xBF://A,A
+            this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.A));
+            this.registers.advancePC(1);
+            return 4;
+
+
+    //ret
+
+    case 0xC0:
+        if((this.registers.getZeroFlag())==0)
+        {
+        this.registers.setPC(this.memory.readSixteenAddr(this.memory.getStackPointer()));
+        this.registers.setStackPointer(this.registers.getStackPointer()+2);
+        return 16;
+        }
+        this.registers.advancePC(1);
+        return 8;
+
+    case 0xD0:
+        if((this.registers.getCarryFlag())==0)
+        {
+        this.registers.setPC(this.memory.readSixteenAddr(this.memory.getStackPointer()));
+        this.registers.setStackPointer(this.registers.getStackPointer()+2);
+        return 16;
+        }
+        this.registers.advancePC(1);
+        return 8;
+
+    case 0xC8:
+        if((this.registers.getZeroFlag())==1)
+        {
+        this.registers.setPC(this.memory.readSixteenAddr(this.memory.getStackPointer()));
+        this.registers.setStackPointer(this.registers.getStackPointer()+2);
+        return 16;
+        }
+        this.registers.advancePC(1);
+        return 8;
+
+    case 0xD8:
+        if((this.registers.getCarryFlag())==1)
+        {
+        this.registers.setPC(this.memory.readSixteenAddr(this.memory.getStackPointer()));
+        this.registers.setStackPointer(this.registers.getStackPointer()+2);
+        return 16;
+        }
+        this.registers.advancePC(1);
+        return 8;
+
+
+
+    case 0xC9:
+        this.registers.setPC(this.memory.readSixteenAddr(this.memory.getStackPointer()));
+        this.registers.setStackPointer(this.registers.getStackPointer()+2);
+        return 16;
+
+
+
+    case 0xC9:
+        this.registers.setPC(this.memory.readSixteenAddr(this.memory.getStackPointer()));
+        this.registers.setStackPointer(this.registers.getStackPointer()+2);
+        this.registers.enableInt();
+        return 16;
+
+
+// jumps
+    case 0xC2:
+        if((this.registers.getZeroFlag())==0)
+        {
+            var immediate = this.rom.getSixteenRom(registers.getPC()+1);
+            this.registers.setPC(immediate);
+            return 16;
+        }
+        this.registers.advancePC(1);
+        return 8;
+
+    case 0xD2:
+        if((this.registers.getCarryFlag())==0)
+        {
+            var immediate = this.rom.getSixteenRom(registers.getPC()+1);
+            this.registers.setPC(immediate);
+            return 16;
+        }
+        this.registers.advancePC(1);
+        return 8;
+
+    case 0xC2:
+        var immediate = this.rom.getSixteenRom(registers.getPC()+1);
+        this.registers.setPC(immediate);
+        return 16;
+
+        
+
+        
 
 
     

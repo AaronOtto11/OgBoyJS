@@ -5,7 +5,8 @@
     var halfCarry;
     var carry;
     var negative;
-    var setZeroFlag;
+    var zeroFlag;
+    var intEnabled;
     var stackPointerAndProgramCounter;
 
 
@@ -16,7 +17,8 @@
         this.halfCarry=0;
         this.carry=0;
         this.negative=0;
-        this.setZeroFlag=0;
+        this.zeroFlag=0;
+        this.intEnabled=0;
 
 
         }
@@ -153,6 +155,19 @@
     registers.prototype.getCarryFlag = function() {//function name says what it does
 
        return this.carry;
+
+    };
+
+    registers.prototype.enableInt = function() {//function name says what it does
+
+        this.intEnabled=1;
+
+    };
+
+
+    registers.prototype.disableInt = function() {//function name says what it does
+
+       this.intEnabled=0;
 
     };
 
