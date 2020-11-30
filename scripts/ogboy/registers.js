@@ -12,7 +12,7 @@
 
     function Registers() {
 
-        this.regs = Uint8Array(7);
+        this.regs = Uint8Array(8);
         this.stackPointerAndProgramCounter = Uint16Array(2);
         this.halfCarry=0;
         this.carry=0;
@@ -108,18 +108,48 @@
     registers.prototype.setZeroFlag = function(flag) {//function name says what it does
 
         this.zero=flag;
+        if (flag==0)
+        {
+            regs[1] = hi & 0x70;
+
+        }
+        else if (flag==1)
+        {
+            regs[1] = hi | 0x80;
+
+        }
 
     };
 
     registers.prototype.setNegativeFlag = function(flag) {//function name says what it does
 
         this.negative=flag;
+        if (flag==0)
+        {
+            regs[1] = hi & 0xB0;
+
+        }
+        else if (flag==1)
+        {
+            regs[1] = hi | 0x40;
+
+        }
 
     };
 
     registers.prototype.setHalfCarryFlag = function(flag) {//function name says what it does
 
         this.halfCarry=flag;
+        if (flag==0)
+        {
+            regs[1] = hi & 0xD0;
+
+        }
+        else if (flag==1)
+        {
+            regs[1] = hi | 0x20;
+
+        }
 
     };
 
@@ -127,6 +157,16 @@
     registers.prototype.setCarryFlag = function(flag) {//function name says what it does
 
         this.carry=flag;
+        if (flag==0)
+        {
+            regs[1] = hi & 0xE0;
+
+        }
+        else if (flag==1)
+        {
+            regs[1] = hi | 0x10;
+
+        }
 
     };
 

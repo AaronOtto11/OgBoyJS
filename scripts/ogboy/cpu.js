@@ -7,13 +7,13 @@
 
     const reg = {
         A: 0,
-        //F: 1,
-        B: 1,
-        C: 2,
-        D: 3,
-        E: 4,
-        H: 5,
-        L: 6
+        F: 1,
+        B: 2,
+        C: 3,
+        D: 4,
+        E: 5,
+        H: 6,
+        L: 7
     //  SP: 0, dont believe this is needed
     //   PC: 1 dont believe this is needed either
 
@@ -164,6 +164,10 @@
         {
             this.registers.setZeroFlag(1);
         }
+        else
+        {
+            this.registers.setZeroFlag(0);
+        }
         this.registers.setNegativeFlag(0);
         return retNum;
  
@@ -206,6 +210,10 @@
         if (retNum==0)
         {
             this.registers.setZeroFlag(1);
+        }
+        else
+        {
+            this.registers.setZeroFlag(0);
         }
         this.registers.setNegativeFlag(1);
         return retNum;
@@ -406,6 +414,18 @@
                 var immediate = this.rom.getSixteenRom(registers.getPC()+1);
                 this.registers.setStackPointer(immediate); 
                 this.registers.advancePC(3); //3 bytes
+                return 12; //how many cycles this took
+
+
+            case 0xF8: //HL, SP+- immediate 8
+                var immediate = this.rom.getRom(registers.getPC()+1)
+                if ((immediate & 0x80) > 0)
+                {
+                    immediate = immediate - 0x10;
+                }  
+                var added = this.sixteenAdd(this.registers.getStackPointer(),immediate);
+                this.registers.writeSixteenReg(reg.H,added); 
+                this.registers.advancePC(2); 
                 return 12; //how many cycles this took
 
 
@@ -798,6 +818,10 @@
                 if(this.registers.getZeroFlag()==0)
                 {
                     var jumpDistance = this.rom.getRom(registers.getPC()+1);
+                    if ((jumpDistance & 0x80) > 0)
+                    {
+                       jumpDistance = jumpDistance - 0x10;
+                    }  
                     this.registers.advancePC(2);
                     this.registers.advancePC(jumpDistance);
                     return 12;
@@ -809,6 +833,10 @@
                 if(this.registers.getCarryFlag()==0)
                 {
                     var jumpDistance = this.rom.getRom(registers.getPC()+1);
+                    if ((jumpDistance & 0x80) > 0)
+                    {
+                       jumpDistance = jumpDistance - 0x10;
+                    }  
                     this.registers.advancePC(2);
                     this.registers.advancePC(jumpDistance);
                     return 12;
@@ -821,6 +849,10 @@
                 if(this.registers.getZeroFlag()==1)
                 {
                     var jumpDistance = this.rom.getRom(registers.getPC()+1);
+                    if ((jumpDistance & 0x80) > 0)
+                    {
+                       jumpDistance = jumpDistance - 0x10;
+                    }  
                     this.registers.advancePC(2);
                     this.registers.advancePC(jumpDistance);
                     return 12;
@@ -832,6 +864,10 @@
                 if(this.registers.getCarryFlag()==1)
                 {
                     var jumpDistance = this.rom.getRom(registers.getPC()+1);
+                    if ((jumpDistance & 0x80) > 0)
+                    {
+                       jumpDistance = jumpDistance - 0x10;
+                    }  
                     this.registers.advancePC(2);
                     this.registers.advancePC(jumpDistance);
                     return 12;
@@ -842,6 +878,10 @@
 
             case 0x18: // jump
                 var jumpDistance = this.rom.getRom(registers.getPC()+1);
+                if ((jumpDistance & 0x80) > 0)
+                {
+                   jumpDistance = jumpDistance - 0x10;
+                }  
                 this.registers.advancePC(2);
                 this.registers.advancePC(jumpDistance);
                 return 12;
@@ -1157,41 +1197,41 @@
             return 8;
 
 
-        case 0x70: //C
+        case 0x71: //C
             var addr=this.registers.readSixteenReg(reg.H);
             this.memory.writeAddr(addr,this.reg.C);
             this.registers.advancePC(1);
             return 8;
 
 
-        case 0x70://D
+        case 0x72://D
             var addr=this.registers.readSixteenReg(reg.H);
             this.memory.writeAddr(addr,this.reg.D);
             this.registers.advancePC(1);
             return 8;
 
-        case 0x70://E
+        case 0x73://E
             var addr=this.registers.readSixteenReg(reg.H);
             this.memory.writeAddr(addr,this.reg.E);
             this.registers.advancePC(1);
             return 8;
 
 
-        case 0x70: //H
+        case 0x74: //H
             var addr=this.registers.readSixteenReg(reg.H);
             this.memory.writeAddr(addr,this.reg.H);
             this.registers.advancePC(1);
             return 8;
 
 
-        case 0x70: //L
+        case 0x75: //L
             var addr=this.registers.readSixteenReg(reg.H);
             this.memory.writeAddr(addr,this.reg.L);
             this.registers.advancePC(1);
             return 8;
 
 
-        case 0x70: //A
+        case 0x77: //A
             var addr=this.registers.readSixteenReg(reg.H);
             this.memory.writeAddr(addr,this.reg.A);
             this.registers.advancePC(1);
@@ -1252,6 +1292,27 @@
             this.registers.writeReg(reg.A,added);
             this.registers.advancePC(1);
             return 4;
+
+        case 0xC6://immediate
+            var immediate = this.rom.getRom(registers.getPC()+1)
+            var added = this.eightAdd(this.registers.getReg(reg.A),immediate);
+            this.registers.writeReg(reg.A,added);
+            this.registers.advancePC(2);
+            return 8;
+
+        case 0xE8://signed immediate to stack pointer
+            var immediate = this.rom.getRom(registers.getPC()+1)
+            if ((immediate & 0x80) > 0)
+             {
+                immediate = immediate - 0x10;
+             }  
+            var added = this.sixteenAdd(this.registers.getStackPointer(),immediate);
+            this.registers.setStackPointer(added);
+            this.registers.setNegativeFlag(0);
+            this.registers.advancePC(2);
+            return 16;
+
+    
             
     //ADC
         case 0x88: //b
@@ -1300,11 +1361,13 @@
             this.registers.advancePC(1);
             return 8;
             
-        case 0x8D://A
+        case 0x8F://A
             var added = this.eightAdd(this.registers.getReg(reg.A),this.registers.getReg(reg.L)+this.registers.getCarryFlag());
             this.registers.writeReg(reg.A,added);
             this.registers.advancePC(1);
             return 4;
+
+        
 
 
     //8 bit subs
@@ -1362,8 +1425,15 @@
             this.registers.advancePC(1);
             return 4;
 
+        case 0xD6://immediate
+            var immediate = this.rom.getRom(registers.getPC()+1)
+            var subbed = this.eightSub(this.registers.getReg(reg.A),immediate);
+            this.registers.writeReg(reg.A,subbed);
+            this.registers.advancePC(2);
+            return 8;
+
         //SBC
-        case 0x99: //b
+        case 0x98: //b
             var subbed = this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.B)-this.registers.getCarryFlag());
             this.registers.writeReg(reg.A,subbed);
             this.registers.advancePC(1);
@@ -1409,11 +1479,14 @@
             this.registers.advancePC(1);
             return 8;
 
-        case 0x9D://A
+        case 0x9F://A
             var subbed = this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.L)-this.registers.getCarryFlag());
             this.registers.writeReg(reg.A,subbed);
             this.registers.advancePC(1);
             return 4;
+
+
+
 
 
 
@@ -1423,7 +1496,7 @@
             var anded = (this.registers.getReg(reg.A))&(this.registers.getReg(reg.B));
             if (anded==0)
             {
-                this.registers.setZeroFlag(0);
+                this.registers.setZeroFlag(1);
             }
             this.registers.writeReg(reg.A,anded);
             this.registers.setCarryFlag(0);
@@ -1439,7 +1512,7 @@
             var anded = (this.registers.getReg(reg.A))&(this.registers.getReg(reg.C));
             if (anded==0)
             {
-                this.registers.setZeroFlag(0);
+                this.registers.setZeroFlag(1);
             }
             this.registers.writeReg(reg.A,anded);
             this.registers.setCarryFlag(0);
@@ -1454,7 +1527,7 @@
             var anded = (this.registers.getReg(reg.A))&(this.registers.getReg(reg.D));
             if (anded==0)
             {
-                this.registers.setZeroFlag(0);
+                this.registers.setZeroFlag(1);
             }
             this.registers.writeReg(reg.A,anded);
             this.registers.setCarryFlag(0);
@@ -1469,7 +1542,7 @@
             var anded = (this.registers.getReg(reg.A))&(this.registers.getReg(reg.E));
             if (anded==0)
             {
-                this.registers.setZeroFlag(0);
+                this.registers.setZeroFlag(1);
             }
             this.registers.writeReg(reg.A,anded);
             this.registers.setCarryFlag(0);
@@ -1485,7 +1558,7 @@
             var anded = (this.registers.getReg(reg.A))&(this.registers.getReg(reg.H));
             if (anded==0)
             {
-                this.registers.setZeroFlag(0);
+                this.registers.setZeroFlag(1);
             }
             this.registers.writeReg(reg.A,anded);
             this.registers.setCarryFlag(0);
@@ -1500,7 +1573,7 @@
             var anded = (this.registers.getReg(reg.A))&(this.registers.getReg(reg.L));
             if (anded==0)
             {
-                this.registers.setZeroFlag(0);
+                this.registers.setZeroFlag(1);
             }
             this.registers.writeReg(reg.A,anded);
             this.registers.setCarryFlag(0);
@@ -1517,7 +1590,7 @@
             var anded = (this.registers.getReg(reg.A))&(reference);
             if (anded==0)
             {
-                this.registers.setZeroFlag(0);
+                this.registers.setZeroFlag(1);
             }
             this.registers.writeReg(reg.A,anded);
             this.registers.setCarryFlag(0);
@@ -1532,7 +1605,7 @@
             var anded = (this.registers.getReg(reg.A))&(this.registers.getReg(reg.A));
             if (anded==0)
             {
-                this.registers.setZeroFlag(0);
+                this.registers.setZeroFlag(1);
             }
             this.registers.writeReg(reg.A,anded);
             this.registers.setCarryFlag(0);
@@ -1542,6 +1615,22 @@
             this.registers.advancePC(1);
             return 4;
 
+
+        case 0xE6:
+            var immediate = this.rom.getRom(registers.getPC()+1)
+            this.registers.setZeroFlag(0);
+            var anded = (this.registers.getReg(reg.A))&immediate;
+            if (anded==0)
+            {
+                this.registers.setZeroFlag(1);
+            }
+            this.registers.writeReg(reg.A,anded);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(1);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(2);
+            return 8;
 
     //8 bit xor  // dont need to worry about bitmasking as it should already be in the write
         case 0xA8:
@@ -1677,7 +1766,7 @@
             var ored = (this.registers.getReg(reg.A))|(this.registers.getReg(reg.B));
             if (ored==0)
             {
-                this.registers.setZeroFlag(0);
+                this.registers.setZeroFlag(1);
             }
             this.registers.writeReg(reg.A,ored);
             this.registers.setCarryFlag(0);
@@ -1693,7 +1782,7 @@
             var ored = (this.registers.getReg(reg.A))|(this.registers.getReg(reg.C));
             if (ored==0)
             {
-                this.registers.setZeroFlag(0);
+                this.registers.setZeroFlag(1);
             }
             this.registers.writeReg(reg.A,ored);
             this.registers.setCarryFlag(0);
@@ -1708,7 +1797,7 @@
             var ored = (this.registers.getReg(reg.A))|(this.registers.getReg(reg.D));
             if (ored==0)
             {
-                this.registers.setZeroFlag(0);
+                this.registers.setZeroFlag(1);
             }
             this.registers.writeReg(reg.A,ored);
             this.registers.setCarryFlag(0);
@@ -1723,7 +1812,7 @@
             var ored = (this.registers.getReg(reg.A))|(this.registers.getReg(reg.E));
             if (ored==0)
             {
-                this.registers.setZeroFlag(0);
+                this.registers.setZeroFlag(1);
             }
             this.registers.writeReg(reg.A,ored);
             this.registers.setCarryFlag(0);
@@ -1739,7 +1828,7 @@
             var ored = (this.registers.getReg(reg.A))|(this.registers.getReg(reg.H));
             if (ored==0)
             {
-                this.registers.setZeroFlag(0);
+                this.registers.setZeroFlag(1);
             }
             this.registers.writeReg(reg.A,ored);
             this.registers.setCarryFlag(0);
@@ -1754,7 +1843,7 @@
             var ored = (this.registers.getReg(reg.A))|(this.registers.getReg(reg.L));
             if (ored==0)
             {
-                this.registers.setZeroFlag(0);
+                this.registers.setZeroFlag(1);
             }
             this.registers.writeReg(reg.A,ored);
             this.registers.setCarryFlag(0);
@@ -1771,7 +1860,7 @@
             var ored = (this.registers.getReg(reg.A))|(reference);
             if (ored==0)
             {
-                this.registers.setZeroFlag(0);
+                this.registers.setZeroFlag(1);
             }
             this.registers.writeReg(reg.A,ored);
             this.registers.setCarryFlag(0);
@@ -1786,7 +1875,7 @@
             var ored = (this.registers.getReg(reg.A))|(this.registers.getReg(reg.A));
             if (ored==0)
             {
-                this.registers.setZeroFlag(0);
+                this.registers.setZeroFlag(1);
             }
             this.registers.writeReg(reg.A,ored);
             this.registers.setCarryFlag(0);
@@ -1795,6 +1884,24 @@
 
             this.registers.advancePC(1);
             return 4;
+
+
+        case 0xF6: //immediate
+            var immediate = this.rom.getRom(registers.getPC()+1);
+            this.registers.setZeroFlag(0);
+            var ored = (this.registers.getReg(reg.A))|immediate;
+            if (ored==0)
+            {
+                this.registers.setZeroFlag(1);
+            }
+
+            this.registers.writeReg(reg.A,ored);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(0);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(2);
+            return 8;
 
 
 // CP 
@@ -1845,89 +1952,148 @@
 
     //ret
 
-    case 0xC0:
-        if((this.registers.getZeroFlag())==0)
-        {
-        this.registers.setPC(this.memory.readSixteenAddr(this.memory.getStackPointer()));
-        this.registers.setStackPointer(this.registers.getStackPointer()+2);
-        return 16;
-        }
-        this.registers.advancePC(1);
-        return 8;
+        case 0xC0:
+            if((this.registers.getZeroFlag())==0)
+            {
+            this.registers.setPC(this.memory.readSixteenAddr(this.memory.getStackPointer()));
+            this.registers.setStackPointer(this.registers.getStackPointer()+2);
+            return 16;
+            }
+            this.registers.advancePC(1);
+            return 8;
 
-    case 0xD0:
-        if((this.registers.getCarryFlag())==0)
-        {
-        this.registers.setPC(this.memory.readSixteenAddr(this.memory.getStackPointer()));
-        this.registers.setStackPointer(this.registers.getStackPointer()+2);
-        return 16;
-        }
-        this.registers.advancePC(1);
-        return 8;
+        case 0xD0:
+            if((this.registers.getCarryFlag())==0)
+            {
+            this.registers.setPC(this.memory.readSixteenAddr(this.memory.getStackPointer()));
+            this.registers.setStackPointer(this.registers.getStackPointer()+2);
+            return 16;
+            }
+            this.registers.advancePC(1);
+            return 8;
 
-    case 0xC8:
-        if((this.registers.getZeroFlag())==1)
-        {
-        this.registers.setPC(this.memory.readSixteenAddr(this.memory.getStackPointer()));
-        this.registers.setStackPointer(this.registers.getStackPointer()+2);
-        return 16;
-        }
-        this.registers.advancePC(1);
-        return 8;
+        case 0xC8:
+            if((this.registers.getZeroFlag())==1)
+            {
+            this.registers.setPC(this.memory.readSixteenAddr(this.memory.getStackPointer()));
+            this.registers.setStackPointer(this.registers.getStackPointer()+2);
+            return 16;
+            }
+            this.registers.advancePC(1);
+            return 8;
 
-    case 0xD8:
-        if((this.registers.getCarryFlag())==1)
-        {
-        this.registers.setPC(this.memory.readSixteenAddr(this.memory.getStackPointer()));
-        this.registers.setStackPointer(this.registers.getStackPointer()+2);
-        return 16;
-        }
-        this.registers.advancePC(1);
-        return 8;
-
-
-
-    case 0xC9:
-        this.registers.setPC(this.memory.readSixteenAddr(this.memory.getStackPointer()));
-        this.registers.setStackPointer(this.registers.getStackPointer()+2);
-        return 16;
+        case 0xD8:
+            if((this.registers.getCarryFlag())==1)
+            {
+            this.registers.setPC(this.memory.readSixteenAddr(this.memory.getStackPointer()));
+            this.registers.setStackPointer(this.registers.getStackPointer()+2);
+            return 16;
+            }
+            this.registers.advancePC(1);
+            return 8;
 
 
 
-    case 0xC9:
-        this.registers.setPC(this.memory.readSixteenAddr(this.memory.getStackPointer()));
-        this.registers.setStackPointer(this.registers.getStackPointer()+2);
-        this.registers.enableInt();
-        return 16;
+        case 0xC9:
+            this.registers.setPC(this.memory.readSixteenAddr(this.memory.getStackPointer()));
+            this.registers.setStackPointer(this.registers.getStackPointer()+2);
+            return 16;
 
 
-// jumps
-    case 0xC2:
-        if((this.registers.getZeroFlag())==0)
-        {
+
+        case 0xC9:
+            this.registers.setPC(this.memory.readSixteenAddr(this.memory.getStackPointer()));
+            this.registers.setStackPointer(this.registers.getStackPointer()+2);
+            this.registers.enableInt();
+            return 16;
+
+
+    // jumps
+        case 0xC2:
+            if((this.registers.getZeroFlag())==0)
+            {
+                var immediate = this.rom.getSixteenRom(registers.getPC()+1);
+                this.registers.setPC(immediate);
+                return 16;
+            }
+            this.registers.advancePC(1);
+            return 8;
+
+        case 0xD2:
+            if((this.registers.getCarryFlag())==0)
+            {
+                var immediate = this.rom.getSixteenRom(registers.getPC()+1);
+                this.registers.setPC(immediate);
+                return 16;
+            }
+            this.registers.advancePC(1);
+            return 8;
+
+        case 0xC2:
             var immediate = this.rom.getSixteenRom(registers.getPC()+1);
             this.registers.setPC(immediate);
             return 16;
-        }
-        this.registers.advancePC(1);
-        return 8;
 
-    case 0xD2:
-        if((this.registers.getCarryFlag())==0)
-        {
-            var immediate = this.rom.getSixteenRom(registers.getPC()+1);
-            this.registers.setPC(immediate);
+
+
+    //pop 
+
+        case 0xC1:
+            this.memory.writeSixteenReg(this.registers.readSixteenReg(reg.B),this.registers.getStackPointer());
+            this.registers.setStackPointer(this.registers.getStackPointer()-2);
+            this.registers.advancePC(1);
             return 16;
-        }
-        this.registers.advancePC(1);
-        return 8;
 
-    case 0xC2:
-        var immediate = this.rom.getSixteenRom(registers.getPC()+1);
-        this.registers.setPC(immediate);
-        return 16;
+        case 0xD1:
+            this.memory.writeSixteenReg(this.registers.readSixteenReg(reg.D),this.registers.getStackPointer());
+            this.registers.setStackPointer(this.registers.getStackPointer()-2);
+            this.registers.advancePC(1);
+            return 16;
+
+        case 0xE1:
+            this.memory.writeSixteenReg(this.registers.readSixteenReg(reg.H),this.registers.getStackPointer());
+            this.registers.setStackPointer(this.registers.getStackPointer()-2);
+            this.registers.advancePC(1);
+            return 16;
+    
+        case 0xF1:
+            this.memory.writeSixteenReg(this.registers.readSixteenReg(reg.A),this.registers.getStackPointer());
+            this.registers.setStackPointer(this.registers.getStackPointer()-2);
+            this.registers.advancePC(1);
+            return 16;
+
+    //push
+
+        case 0xC5:
+            this.registers.setStackPointer(this.registers.getStackPointer()+2);
+            this.memory.writeSixteenAddr(this.registers.getStackPointer(),this.registers.readSixteenReg(reg.B));
+            this.registers.advancePC(1);
+            return 16;
+
+
+        case 0xD5:
+            this.registers.setStackPointer(this.registers.getStackPointer()+2);
+            this.memory.writeSixteenAddr(this.registers.getStackPointer(),this.registers.readSixteenReg(reg.D));
+            this.registers.advancePC(1);
+            return 16;
+
+        case 0xE5:
+            this.registers.setStackPointer(this.registers.getStackPointer()+2);
+            this.memory.writeSixteenAddr(this.registers.getStackPointer(),this.registers.readSixteenReg(reg.H));
+            this.registers.advancePC(1);
+            return 16;
+
+
+        case 0xF5:
+            this.registers.setStackPointer(this.registers.getStackPointer()+2);
+            this.memory.writeSixteenAddr(this.registers.getStackPointer(),this.registers.readSixteenReg(reg.A));
+            this.registers.advancePC(1);
+            return 16;
+    
 
         
+
+            
 
         
 
