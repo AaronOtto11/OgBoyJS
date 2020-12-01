@@ -2093,7 +2093,72 @@
 
         
 
-            
+// RST
+        case 0xC7: //00h
+            this.registers.setStackPointer(this.registers.getStackPointer()+2);
+            this.memory.writeSixteenAddr(this.registers.getStackPointer(),this.registers.getStackPointer());
+            var tempReg = this.registers.getReg(reg.H);
+            tempReg=tempReg & 0x00FF;
+            this.registers.setPC(tempReg);
+            return 16;
+
+        case 0xD7: //10h
+            this.registers.setStackPointer(this.registers.getStackPointer()+2);
+            this.memory.writeSixteenAddr(this.registers.getStackPointer(),this.registers.getStackPointer());
+            var tempReg = this.registers.getReg(reg.H);
+            tempReg=(tempReg | 0x1000)&0x10FF;
+            this.registers.setPC(tempReg);
+            return 16;
+
+        case 0xE7: //20h
+            this.registers.setStackPointer(this.registers.getStackPointer()+2);
+            this.memory.writeSixteenAddr(this.registers.getStackPointer(),this.registers.getStackPointer());
+            var tempReg = this.registers.getReg(reg.H);
+            tempReg=(tempReg | 0x2000)&0x20FF;
+            this.registers.setPC(tempReg);
+            return 16;
+
+        case 0xF7: //30h
+            this.registers.setStackPointer(this.registers.getStackPointer()+2);
+            this.memory.writeSixteenAddr(this.registers.getStackPointer(),this.registers.getStackPointer());
+            var tempReg = this.registers.getReg(reg.H);
+            tempReg=tempReg=(tempReg | 0x3000)&0x30FF;
+            this.registers.setPC(tempReg);
+            return 16;
+
+        case 0xCF: //88h
+            this.registers.setStackPointer(this.registers.getStackPointer()+2);
+            this.memory.writeSixteenAddr(this.registers.getStackPointer(),this.registers.getStackPointer());
+            var tempReg = this.registers.getReg(reg.H);
+            tempReg=(tempReg | 0x0800)&0x08FF;
+            this.registers.setPC(tempReg);
+            return 16;
+
+        case 0xDF: //18h
+            this.registers.setStackPointer(this.registers.getStackPointer()+2);
+            this.memory.writeSixteenAddr(this.registers.getStackPointer(),this.registers.getStackPointer());
+            var tempReg = this.registers.getReg(reg.H);
+            tempReg=(tempReg | 0x1800)&0x18FF;
+            this.registers.setPC(tempReg);
+            return 16;
+
+        case 0xEF: //28h
+            this.registers.setStackPointer(this.registers.getStackPointer()+2);
+            this.memory.writeSixteenAddr(this.registers.getStackPointer(),this.registers.getStackPointer());
+            var tempReg = this.registers.getReg(reg.H);
+            tempReg=(tempReg | 0x2800)&0x28FF;
+            this.registers.setPC(tempReg);
+            return 16;
+
+        case 0xFF: //38h
+            this.registers.setStackPointer(this.registers.getStackPointer()+2);
+            this.memory.writeSixteenAddr(this.registers.getStackPointer(),this.registers.getStackPointer());
+            var tempReg = this.registers.getReg(reg.H);
+            tempReg=(tempReg | 0x3800)&0x38FF;
+            this.registers.setPC(tempReg);
+            return 16;
+
+
 
         
 
