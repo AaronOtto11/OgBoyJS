@@ -463,6 +463,49 @@
                 return 8; //how many cycles this took 
 
 
+            case 0xEA: //reg to memory
+                var immediate = this.rom.getSixteenRom(this.registers.getPC()+1);
+                this.memory.writeAddr(immediate,this.registers.getReg(reg.A));  
+                this.registers.advancePC(3); 
+                return 16; //how many cycles this took 
+
+            case 0xFA: //ref
+                var addr=this.registers.readSixteenReg(reg.H);
+                var reference=this.memory.readAddr(addr);
+                this.registers.writeReg(reg.A,reference);  
+                this.registers.advancePC(3); 
+                return 16; //how many cycles this took 
+
+            case 0xE0: //write to ref, a 
+                var addr = this.rom.getRom(this.registers.getPC()+1);
+                var addr=0xFF00|addr;
+                this.memory.writeAddr(addr,this.registers.getReg(reg.A))
+                this.registers.advancePC(2); 
+                return 12; //how many cycles this took 
+
+            case 0xF0: //write to a, ref 
+                var addr = this.rom.getRom(this.registers.getPC()+1);
+                var addr=0xFF00|addr;
+                this.registers.writeReg(reg.A,this.memory.readAddr(addr));
+                this.registers.advancePC(2); 
+                return 12; //how many cycles this took 
+
+
+            case 0xE2: //write to ref, ref+carry
+            var addr = this.registers.getCarryFlag();
+            var addr=0xFF00|addr;
+            this.memory.writeAddr(addr,this.registers.getReg(reg.A))
+            this.registers.advancePC(1); 
+            return 8; //how many cycles this took 
+
+            case 0xF2: //write to a, ref+carry 
+                var addr = this.registers.getCarryFlag();
+                var addr=0xFF00|addr;
+                this.registers.writeReg(reg.A,this.memory.readAddr(addr));
+                this.registers.advancePC(1); 
+                return 8; //how many cycles this took 
+
+
 
 
             
@@ -826,7 +869,7 @@
                     this.registers.advancePC(jumpDistance);
                     return 12;
                 }
-                this.advancePC(2);
+                this.registers.advancePC(2);
                 return 8;
 
             case 0x30: // jump if carry flag equals 0
@@ -841,7 +884,7 @@
                     this.registers.advancePC(jumpDistance);
                     return 12;
                 }
-                this.advancePC(2);
+                this.registers.advancePC(2);
                 return 8;
 
 
@@ -857,7 +900,7 @@
                     this.registers.advancePC(jumpDistance);
                     return 12;
                 }
-                this.advancePC(2);
+                this.registers.advancePC(2);
                 return 8;
 
             case 0x38: // jump if carry flag equals 1
@@ -872,7 +915,7 @@
                     this.registers.advancePC(jumpDistance);
                     return 12;
                 }
-                this.advancePC(2);
+                this.registers.advancePC(2);
                 return 8;
 
 
@@ -1362,10 +1405,17 @@
             return 8;
             
         case 0x8F://A
-            var added = this.eightAdd(this.registers.getReg(reg.A),this.registers.getReg(reg.L)+this.registers.getCarryFlag());
+            var added = this.eightAdd(this.registers.getReg(reg.A),this.registers.getReg(reg.A)+this.registers.getCarryFlag());
             this.registers.writeReg(reg.A,added);
             this.registers.advancePC(1);
             return 4;
+
+        case 0xCE://immediate 8
+            var immediate = this.rom.getRom(registers.getPC()+1);
+            var added = this.eightAdd(this.registers.getReg(reg.A),immediate+this.registers.getCarryFlag());
+            this.registers.writeReg(reg.A,added);
+            this.registers.advancePC(2);
+            return 8;
 
         
 
@@ -1426,7 +1476,7 @@
             return 4;
 
         case 0xD6://immediate
-            var immediate = this.rom.getRom(registers.getPC()+1)
+            var immediate = this.rom.getRom(registers.getPC()+1);
             var subbed = this.eightSub(this.registers.getReg(reg.A),immediate);
             this.registers.writeReg(reg.A,subbed);
             this.registers.advancePC(2);
@@ -1480,13 +1530,20 @@
             return 8;
 
         case 0x9F://A
-            var subbed = this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.L)-this.registers.getCarryFlag());
+            var subbed = this.eightSub(this.registers.getReg(reg.A),this.registers.getReg(reg.A)-this.registers.getCarryFlag());
             this.registers.writeReg(reg.A,subbed);
             this.registers.advancePC(1);
             return 4;
 
 
+        case 0x9F://immediate
+            var immediate = this.rom.getRom(registers.getPC()+1);
+            var subbed = this.eightSub(this.registers.getReg(reg.A),immediate-this.registers.getCarryFlag());
+            this.registers.writeReg(reg.A,subbed);
+            this.registers.advancePC(1);
+            return 8;
 
+            
 
 
 
@@ -1757,6 +1814,22 @@
             this.registers.advancePC(1);
             return 4;
 
+        case 0xEE:
+            var immediate = this.rom.getRom(registers.getPC()+1);
+            this.registers.setZeroFlag(0);
+            var xored = (this.registers.getReg(reg.A))^(immediate);
+            if (xored==0)
+            {
+                this.registers.setZeroFlag(0);
+            }
+            this.registers.writeReg(reg.A,xored);
+            this.registers.setCarryFlag(0);
+            this.registers.setHalfCarryFlag(0);
+            this.registers.setNegativeFlag(0);
+
+            this.registers.advancePC(2);
+            return 8;
+    
 
 
 
@@ -1949,7 +2022,12 @@
             this.registers.advancePC(1);
             return 4;
 
-
+        case 0xFE://imm
+            var immediate = this.rom.getRom(registers.getPC()+1);
+            this.eightSub(this.registers.getReg(reg.A),immediate);
+            this.registers.advancePC(1);
+            return 4;
+            
     //ret
 
         case 0xC0:
@@ -2001,7 +2079,7 @@
 
 
 
-        case 0xC9:
+        case 0xD9://reti
             this.registers.setPC(this.memory.readSixteenAddr(this.memory.getStackPointer()));
             this.registers.setStackPointer(this.registers.getStackPointer()+2);
             this.registers.enableInt();
@@ -2029,10 +2107,14 @@
             this.registers.advancePC(1);
             return 8;
 
-        case 0xC2:
+        case 0xC3:
             var immediate = this.rom.getSixteenRom(registers.getPC()+1);
             this.registers.setPC(immediate);
             return 16;
+
+        case 0xE9:
+            this.registers.setPC(this.registers.readSixteenReg(reg.H));
+            return 4;
 
 
 
@@ -2161,11 +2243,85 @@
 
 
         
+//CALL
+
+        case 0xC4:
+            if(this.registers.getZeroFlag()==0)
+            {
+                this.registers.setStackPointer(this.registers.getStackPointer()+2);
+                this.memory.writeSixteenAddr(this.registers.getStackPointer(),this.registers.getPC()+1);
+                var immediate = this.rom.getSixteenRom(registers.getPC()+1);
+                this.registers.setPC(immediate);
+                this.registers.advancePC(3);
+                this.registers.advancePC(jumpDistance);
+                return 24;
+            }
+            this.registers.advancePC(3);
+            return 12;
+
+        case 0xD4:
+            if(this.registers.getCarryFlag()==0)
+            {
+                this.registers.setStackPointer(this.registers.getStackPointer()+2);
+                this.memory.writeSixteenAddr(this.registers.getStackPointer(),this.registers.getPC()+1);
+                var immediate = this.rom.getSixteenRom(registers.getPC()+1);
+                this.registers.setPC(immediate);
+                this.registers.advancePC(3);
+                this.registers.advancePC(jumpDistance);
+                return 24;
+            }
+            this.registers.advancePC(3);
+            return 12;
 
 
-    
+        case 0xCC:
+            if(this.registers.getZeroFlag()==1)
+            {
+                this.registers.setStackPointer(this.registers.getStackPointer()+2);
+                this.memory.writeSixteenAddr(this.registers.getStackPointer(),this.registers.getPC()+1);
+                var immediate = this.rom.getSixteenRom(registers.getPC()+1);
+                this.registers.setPC(immediate);
+                this.registers.advancePC(3);
+                this.registers.advancePC(jumpDistance);
+                return 24;
+            }
+            this.registers.advancePC(3);
+            return 12;
+
+        case 0xDC:
+            if(this.registers.getCarryFlag()==1)
+            {
+                this.registers.setStackPointer(this.registers.getStackPointer()+2);
+                this.memory.writeSixteenAddr(this.registers.getStackPointer(),this.registers.getPC()+1);
+                var immediate = this.rom.getSixteenRom(registers.getPC()+1);
+                this.registers.setPC(immediate);
+                this.registers.advancePC(3);
+                this.registers.advancePC(jumpDistance);
+                return 24;
+            }
+            this.registers.advancePC(3);
+            return 12;
+
+
+
+        case 0xF9: // load hl to the stack pointer
+            this.registers.setStackPointer(this.registers.readSixteenReg(reg.H));
+            this.registers.advancePC(1);
+            return 8;
 
         
+//interrupts 
+
+        case 0xFB:
+            this.registers.enableInt();
+            this.registers.advancePC(1);
+            return 4;
+            
+
+        case 0xF3:
+            this.registers.disableInt();
+            this.registers.advancePC(1);
+            return 4;
 
 
 
