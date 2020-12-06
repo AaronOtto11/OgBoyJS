@@ -2535,6 +2535,78 @@
 
 
 
+    //RR
+            case 0x18:
+                this.rr(reg.B);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x19:
+                this.rr(reg.C);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x1A:
+                this.rr(reg.D);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x1B:
+                this.rr(reg.E);
+                this.registers.advancePC(1);
+                return 8;
+
+
+            case 0x1C:
+                this.rr(reg.H);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x1D:
+                this.rr(reg.L);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x1E://(hl)
+                var address = this.registers.readSixteenReg(reg.H);
+                var reference= this.memory.readAddr(address);
+                if(this.registers.getCarryFlag()==1)
+                {
+                
+                    if(reference&0x01==0x01)
+                    {
+                        this.registers.setCarryFlag(1);
+                        this.memory.writeAddr(address,((reference>>>1)&0x0FF)|0x80);
+                        return;
+
+                    }
+                    this.registers.setCarryFlag(0);
+                    this.memory.writeAddr(address,((reference>>>1)&0x0FF)|0x80);
+                    return;
+                }
+                else //carry flag is 0
+                {
+                    if(reference&0x01==0x01)
+                    {
+                        this.registers.setCarryFlag(1);
+                        this.memory.writeAddr(address,((reference>>>1)&0x0FF)); //should set bit 0 to 0
+                        //it is already filled with a 0 
+                        return;
+
+                    }
+                    this.registers.setCarryFlag(0);
+                    this.memory.writeAddr(address,((this.registers.getReg(reg.B)>>>1)&0x0FF));
+                    return;
+
+                }
+
+            case 0x1F:
+                this.rr(reg.A);
+                this.registers.advancePC(1);
+                return 8;
+
+
+
         }
 
 
