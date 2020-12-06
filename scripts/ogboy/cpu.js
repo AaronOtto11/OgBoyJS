@@ -288,9 +288,6 @@
             this.registers.setCarryFlag(0);
             this.registers.writeReg(whatReg,((this.registers.getReg(whatReg)<<1)&0x0FF));
             return;
-
-
-
         }
      }
 
@@ -354,9 +351,12 @@
         switch (rom.getRom(registers.getPC())) {
             case 0xCB:  //prefix timeeeeee
                
+                this.registers.advancePC(1);
+                return this.prefixTable();
             
-            
-                break;
+
+
+
 
 
             case 0x00:
@@ -2339,6 +2339,207 @@
 
     };   
 
+    CPU.prototype.prefixTable = function()
+    {
+        switch (rom.getRom(registers.getPC())) {
+
+//rlc
+            case 0x00:
+                this.rlc(reg.B);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x01:
+                this.rlc(reg.C);
+                this.registers.advancePC(1);
+                return 8;
+
+
+            case 0x02:
+                this.rlc(reg.D);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x03:
+                this.rlc(reg.E);
+                this.registers.advancePC(1);
+                return 8;
+
+
+            case 0x04:
+                this.rlc(reg.H);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x05:
+                this.rlc(reg.L);
+                this.registers.advancePC(1);
+                return 8;
+
+
+            case 0x06:
+                this.registers.setNegativeFlag(0);
+                this.registers.setHalfCarryFlag(0);
+                var address = this.registers.readSixteenReg(reg.H);
+                var reference= this.memory.readAddr(address);
+                if(reference&0x80==0x80)
+                {
+                    this.registers.setCarryFlag(1);
+                    this.memory.writeAddr(address,((reference<<1)&0x0FF)|0x01);
+                    this.registers.advancePC(1);
+                    return 16;
+        
+                }
+                this.memory.writeAddr(address,((reference<<1)&0x0FF)<<1);
+                this.registers.setCarryFlag(0);
+                this.advancePC(1);
+                return 16;
+
+            case 0x07:
+                this.rlc(reg.A);
+                this.registers.advancePC(1);
+                return 8;
+            
+
+    //rrc
+            case 0x08:
+                this.rrc(reg.B);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x09:
+                this.rrc(reg.C);
+                this.registers.advancePC(1);
+                return 8;
+
+
+            case 0x0A:
+                this.rrc(reg.D);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x0B:
+                this.rrc(reg.E);
+                this.registers.advancePC(1);
+                return 8;
+
+
+            case 0x0C:
+                this.rrc(reg.H);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x0D:
+                this.rrc(reg.L);
+                this.registers.advancePC(1);
+                return 8;
+
+
+            case 0x0E:
+                var address = this.registers.readSixteenReg(reg.H);
+                var reference= this.memory.readAddr(address);
+                this.registers.setNegativeFlag(0);
+                this.registers.setHalfCarryFlag(0);
+                if(reference&0x01==0x01)
+                {
+                    this.registers.setCarryFlag(1);
+                    this.memory.writeAddr(address,((this.registers.getReg(whatReg)>>>1)&0x0FF)|0x80);
+                    this.advancePC(1);
+                    return 16;
+        
+                }
+                this.memory.writeAddr(address,this.registers.getReg(whatReg)>>>1);
+                this.registers.setCarryFlag(0);
+                this.advancePC(1);
+                return 16;
+
+            case 0x0F:
+                this.rrc(reg.A);
+                this.registers.advancePC(1);
+                return 8;
+
+
+
+//RL
+            case 0x10:
+                this.rl(reg.B);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x11:
+                this.rl(reg.C);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x12:
+                this.rl(reg.D);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x13:
+                this.rl(reg.E);
+                this.registers.advancePC(1);
+                return 8;
+
+
+            case 0x14:
+                this.rl(reg.H);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x15:
+                this.rl(reg.L);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x16://(hl)
+                var address = this.registers.readSixteenReg(reg.H);
+                var reference= this.memory.readAddr(address);
+                if(this.registers.getCarryFlag()==1)
+                {
+                
+                    if(reference&0x80==0x80)
+                    {
+                        this.registers.setCarryFlag(1);
+                        this.memory.writeAddr(address,((reference<<1)&0x0FF)|0x01);
+                        this.registers.advancePC(1);
+                        return 16;
+        
+                    }
+                    this.registers.setCarryFlag(0);
+                    this.memory.writeAddr(address,((reference<<1)&0x0FF)|0x01);
+                    this.registers.advancePC(1);
+                    return 16;
+                }
+                else //carry flag is 0
+                {
+                    if(reference&0x80==0x80)
+                    {
+                        this.registers.setCarryFlag(1);
+                        this.memory.writeAddr(address,((reference<<1)&0x0FF)); //should set bit 0 to 0
+                        //it is already filled with a 0
+                        this.registers.advancePC(1); 
+                        return 16;
+        
+                    }
+                    this.registers.setCarryFlag(0);
+                    this.memory.writeAddr(address,((reference<<1)&0x0FF));
+                    this.registers.advancePC(1);
+                    return 16;
+                }
+
+            case 0x17:
+                this.rl(reg.A);
+                this.registers.advancePC(1);
+                return 8;
+
+
+
+        }
+
+
+
+    }
 
 
     module.exports = CPU;
