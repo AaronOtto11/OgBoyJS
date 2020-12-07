@@ -343,6 +343,127 @@
 
    }
 
+   CPU.prototype.sla= function(whatReg){
+    this.registers.setNegativeFlag(0);
+    this.registers.setHalfCarryFlag(0);
+    if(this.registers.getReg(whatReg)&0x80==0x80)
+    {
+        this.registers.setCarryFlag(1);
+        this.registers.writeReg(whatReg,((this.registers.getReg(whatReg)<<1)&0x0FF));
+        if(this.registers.getReg(whatReg)==0)
+        {
+            this.registers.setZeroFlag(1);
+        }
+        else{
+            this.registers.setZeroFlag(0);
+        }
+        return;
+
+    }
+    this.registers.writeReg(whatReg,this.registers.getReg(whatReg)<<1);
+    if(this.registers.getReg(whatReg)==0)
+    {
+        this.registers.setZeroFlag(1);
+    }
+    else{
+        this.registers.setZeroFlag(0);
+    }
+    this.registers.setCarryFlag(0);
+    return;
+    }
+
+
+    CPU.prototype.sra= function(whatReg){ // this can be refactored 
+        this.registers.setNegativeFlag(0);
+        this.registers.setHalfCarryFlag(0);
+        if(this.registers.getReg(whatReg)&0x01==0x01)
+        {
+            this.registers.setCarryFlag(1);
+            if(this.registers.getReg(whatReg)&0x80==0x80){
+            this.registers.writeReg(whatReg,(((this.registers.getReg(whatReg)>>1)&0x0FF)|0x80)); 
+            }
+            else{
+                this.registers.writeReg(whatReg,((this.registers.getReg(whatReg)>>1)&0x0FF)); 
+            }
+            if(this.registers.getReg(whatReg)==0)
+            {
+                this.registers.setZeroFlag(1);
+            }
+            else{
+                this.registers.setZeroFlag(0);
+            }
+            return;
+
+        }
+        if(this.registers.getReg(whatReg)&0x80==0x80){
+            this.registers.writeReg(whatReg,(((this.registers.getReg(whatReg)>>1)&0x0FF)|0x80)); 
+            }
+            else{
+                this.registers.writeReg(whatReg,((this.registers.getReg(whatReg)>>1)&0x0FF)); 
+            }
+        this.registers.setCarryFlag(0);
+        if(this.registers.getReg(whatReg)==0)
+        {
+            this.registers.setZeroFlag(1);
+        }
+        else{
+            this.registers.setZeroFlag(0);
+        }
+        return;
+    }
+
+    CPU.prototype.srl= function(whatReg){
+        this.registers.setNegativeFlag(0);
+        this.registers.setHalfCarryFlag(0);
+        if(this.registers.getReg(whatReg)&0x01==0x01)
+        {
+            this.registers.setCarryFlag(1);
+            this.registers.writeReg(whatReg,((this.registers.getReg(whatReg)>>>1)&0x0FF));
+            if(this.registers.getReg(whatReg)==0)
+            {
+                this.registers.setZeroFlag(1);
+            }
+            else{
+                this.registers.setZeroFlag(0);
+            }
+            return;
+
+        }
+        this.registers.writeReg(whatReg,this.registers.getReg(whatReg)>>>1);
+        this.registers.setCarryFlag(0);
+        if(this.registers.getReg(whatReg)==0)
+        {
+            this.registers.setZeroFlag(1);
+        }
+        else{
+            this.registers.setZeroFlag(0);
+        }
+        return;
+
+
+    }
+    CPU.prototype.swap= function(whatReg){
+        registers.setCarryFlag(0);
+        registers.setNegativeFlag(0);
+        registers.setHalfCarryFlag(0);
+        var topNibble = (this.registers.getReg(whatReg)&0xF0)>>>4;
+        var bottomNibble = (this.registers.getReg(whatReg)&0x0F)<<4;
+        topNibble=topNibble|bottomNibble;
+        if(topNibble==0)
+        {
+            this.registers.setZeroFlag(1);
+        }
+        else{
+            this.registers.setZeroFlag(0);
+        }
+        this.registers.writeReg(whatReg,topNibble);
+        return;
+
+
+
+
+
+    }
 
 
     //implement the opcodes
@@ -2337,7 +2458,8 @@
 
 
 
-    };   
+    }; 
+
 
     CPU.prototype.prefixTable = function()
     {
@@ -2346,33 +2468,75 @@
 //rlc
             case 0x00:
                 this.rlc(reg.B);
+                if(this.registers.getReg(reg.B)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
             case 0x01:
                 this.rlc(reg.C);
+                if(this.registers.getReg(reg.C)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
 
             case 0x02:
                 this.rlc(reg.D);
+                if(this.registers.getReg(reg.D)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
             case 0x03:
                 this.rlc(reg.E);
+                if(this.registers.getReg(reg.E)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
 
             case 0x04:
                 this.rlc(reg.H);
+                if(this.registers.getReg(reg.H)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
             case 0x05:
                 this.rlc(reg.L);
+                if(this.registers.getReg(reg.L)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
@@ -2387,16 +2551,37 @@
                     this.registers.setCarryFlag(1);
                     this.memory.writeAddr(address,((reference<<1)&0x0FF)|0x01);
                     this.registers.advancePC(1);
+                    if(this.memory.readAddr(address)==0)
+                    {
+                        this.registers.setZeroFlag(1);
+                    }
+                    else{
+                        this.registers.setZeroFlag(0);
+                    }
                     return 16;
         
                 }
                 this.memory.writeAddr(address,((reference<<1)&0x0FF)<<1);
                 this.registers.setCarryFlag(0);
                 this.advancePC(1);
+                if(this.memory.readAddr(address)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 return 16;
 
             case 0x07:
                 this.rlc(reg.A);
+                if(this.registers.getReg(reg.A)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
             
@@ -2404,33 +2589,75 @@
     //rrc
             case 0x08:
                 this.rrc(reg.B);
+                if(this.registers.getReg(reg.B)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
             case 0x09:
                 this.rrc(reg.C);
+                if(this.registers.getReg(reg.C)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
 
             case 0x0A:
                 this.rrc(reg.D);
+                if(this.registers.getReg(reg.D)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
             case 0x0B:
                 this.rrc(reg.E);
+                if(this.registers.getReg(reg.E)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
 
             case 0x0C:
                 this.rrc(reg.H);
+                if(this.registers.getReg(reg.H)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
             case 0x0D:
                 this.rrc(reg.L);
+                if(this.registers.getReg(reg.L)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
@@ -2445,16 +2672,37 @@
                     this.registers.setCarryFlag(1);
                     this.memory.writeAddr(address,((this.registers.getReg(whatReg)>>>1)&0x0FF)|0x80);
                     this.advancePC(1);
+                    if(this.memory.readAddr(address)==0)
+                    {
+                        this.registers.setZeroFlag(1);
+                    }
+                    else{
+                        this.registers.setZeroFlag(0);
+                    }
                     return 16;
         
                 }
                 this.memory.writeAddr(address,this.registers.getReg(whatReg)>>>1);
                 this.registers.setCarryFlag(0);
                 this.advancePC(1);
+                if(this.memory.readAddr(address)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 return 16;
 
             case 0x0F:
                 this.rrc(reg.A);
+                if(this.registers.getReg(reg.A)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
@@ -2463,32 +2711,74 @@
 //RL
             case 0x10:
                 this.rl(reg.B);
+                if(this.registers.getReg(reg.B)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
             case 0x11:
                 this.rl(reg.C);
+                if(this.registers.getReg(reg.C)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
             case 0x12:
                 this.rl(reg.D);
+                if(this.registers.getReg(reg.D)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
             case 0x13:
                 this.rl(reg.E);
+                if(this.registers.getReg(reg.E)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
 
             case 0x14:
                 this.rl(reg.H);
+                if(this.registers.getReg(reg.H)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
             case 0x15:
                 this.rl(reg.L);
+                if(this.registers.getReg(reg.L)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
@@ -2503,12 +2793,26 @@
                         this.registers.setCarryFlag(1);
                         this.memory.writeAddr(address,((reference<<1)&0x0FF)|0x01);
                         this.registers.advancePC(1);
+                        if(this.memory.readAddr(address)==0)
+                        {
+                            this.registers.setZeroFlag(1);
+                        }
+                        else{
+                            this.registers.setZeroFlag(0);
+                        }
                         return 16;
         
                     }
                     this.registers.setCarryFlag(0);
                     this.memory.writeAddr(address,((reference<<1)&0x0FF)|0x01);
                     this.registers.advancePC(1);
+                    if(this.memory.readAddr(address)==0)
+                    {
+                        this.registers.setZeroFlag(1);
+                    }
+                    else{
+                        this.registers.setZeroFlag(0);
+                    }
                     return 16;
                 }
                 else //carry flag is 0
@@ -2519,17 +2823,38 @@
                         this.memory.writeAddr(address,((reference<<1)&0x0FF)); //should set bit 0 to 0
                         //it is already filled with a 0
                         this.registers.advancePC(1); 
+                        if(this.memory.readAddr(address)==0)
+                        {
+                            this.registers.setZeroFlag(1);
+                        }
+                        else{
+                            this.registers.setZeroFlag(0);
+                        }
                         return 16;
         
                     }
                     this.registers.setCarryFlag(0);
                     this.memory.writeAddr(address,((reference<<1)&0x0FF));
                     this.registers.advancePC(1);
+                    if(this.memory.readAddr(address)==0)
+                    {
+                        this.registers.setZeroFlag(1);
+                    }
+                    else{
+                        this.registers.setZeroFlag(0);
+                    }
                     return 16;
                 }
 
             case 0x17:
                 this.rl(reg.A);
+                if(this.registers.getReg(reg.A)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
@@ -2538,32 +2863,74 @@
     //RR
             case 0x18:
                 this.rr(reg.B);
+                if(this.registers.getReg(reg.B)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
             case 0x19:
                 this.rr(reg.C);
+                if(this.registers.getReg(reg.C)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
             case 0x1A:
                 this.rr(reg.D);
+                if(this.registers.getReg(reg.D)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
             case 0x1B:
                 this.rr(reg.E);
+                if(this.registers.getReg(reg.E)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
 
             case 0x1C:
                 this.rr(reg.H);
+                if(this.registers.getReg(reg.H)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
             case 0x1D:
                 this.rr(reg.L);
+                if(this.registers.getReg(reg.L)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
 
@@ -2577,12 +2944,28 @@
                     {
                         this.registers.setCarryFlag(1);
                         this.memory.writeAddr(address,((reference>>>1)&0x0FF)|0x80);
-                        return;
+                        this.registers.advancePC(1);
+                        if(this.memory.readAddr(address)==0)
+                        {
+                            this.registers.setZeroFlag(1);
+                        }
+                        else{
+                            this.registers.setZeroFlag(0);
+                        }
+                        return 16;
 
                     }
                     this.registers.setCarryFlag(0);
                     this.memory.writeAddr(address,((reference>>>1)&0x0FF)|0x80);
-                    return;
+                    this.registers.advancePC(1);
+                    if(this.memory.readAddr(address)==0)
+                    {
+                        this.registers.setZeroFlag(1);
+                    }
+                    else{
+                        this.registers.setZeroFlag(0);
+                    }
+                    return 16;
                 }
                 else //carry flag is 0
                 {
@@ -2591,19 +2974,324 @@
                         this.registers.setCarryFlag(1);
                         this.memory.writeAddr(address,((reference>>>1)&0x0FF)); //should set bit 0 to 0
                         //it is already filled with a 0 
-                        return;
+                        this.registers.advancePC(1);
+                        if(this.memory.readAddr(address)==0)
+                        {
+                            this.registers.setZeroFlag(1);
+                        }
+                        else{
+                            this.registers.setZeroFlag(0);
+                        }
+                        return 16;
 
                     }
                     this.registers.setCarryFlag(0);
                     this.memory.writeAddr(address,((this.registers.getReg(reg.B)>>>1)&0x0FF));
-                    return;
+                    this.registers.advancePC(1);
+                    if(this.memory.readAddr(address)==0)
+                    {
+                        this.registers.setZeroFlag(1);
+                    }
+                    else{
+                        this.registers.setZeroFlag(0);
+                    }
+                    return 16;
 
                 }
 
             case 0x1F:
                 this.rr(reg.A);
+                if(this.registers.getReg(reg.A)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
                 this.registers.advancePC(1);
                 return 8;
+
+//SLA 
+            case 0x20:
+                this.sla(reg.B);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x21:
+                this.sla(reg.C);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x22:
+                this.sla(reg.D);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x23:
+                this.sla(reg.E);
+                this.registers.advancePC(1);
+                return 8;
+
+
+            case 0x24:
+                this.sla(reg.H);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x25:
+                this.sla(reg.L);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x26:
+                var address = this.registers.readSixteenReg(reg.H);
+                var reference= this.memory.readAddr(address);
+                this.registers.setNegativeFlag(0);
+                this.registers.setHalfCarryFlag(0);
+                if(reference&0x80==0x80)
+                {
+                    this.registers.setCarryFlag(1);
+                    this.memory.writeAddr(address,((reference<<1)&0x0FF));
+                    if(this.memory.readAddr(address)==0)
+                    {
+                        this.registers.setZeroFlag(1);
+                    }
+                    else{
+                        this.registers.setZeroFlag(0);
+                    }
+                    this.registers.advancePC(1);
+                    return 16;
+            
+                }
+                this.memory.writeAddr(address,reference<<1);
+                if(this.memory.readAddr(address)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
+                this.registers.setCarryFlag(0);
+                this.registers.advancePC(1);
+                return 16;
+                
+
+            case 0x27:
+                this.sla(reg.A);
+                this.registers.advancePC(1);
+                return 8;
+
+//sra
+            case 0x28:
+                this.sra(reg.B);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x29:
+                this.sra(reg.C);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x2A:
+                this.sra(reg.D);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x2B:
+                this.sra(reg.E);
+                this.registers.advancePC(1);
+                return 8;
+
+
+            case 0x2C:
+                this.sra(reg.H);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x2D:
+                this.sra(reg.L);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x2E:
+                this.registers.setNegativeFlag(0);
+                this.registers.setHalfCarryFlag(0);
+                var address = this.registers.readSixteenReg(reg.H);
+                var reference= this.memory.readAddr(address);
+                if(reference&0x01==0x01)
+                {
+                    this.registers.setCarryFlag(1);
+                    if(reference&0x80==0x80){
+                    this.memory.writeAddr(address,(((reference>>1)&0x0FF)|0x80)); 
+                    }
+                    else{
+                        this.memory.writeAddr(address,((reference>>1)&0x0FF)); 
+                    }
+                    if(this.memory.readAddr(address)==0)
+                    {
+                        this.registers.setZeroFlag(1);
+                    }
+                    else{
+                        this.registers.setZeroFlag(0);
+                    }
+                    this.registers.advancePC(1);
+                    return 16;
+        
+                }
+                if(reference&0x80==0x80){
+                    this.memory.writeAddr(address,(((reference>>1)&0x0FF)|0x80)); 
+                    }
+                    else{
+                        this.memory.writeAddr(address,((reference>>1)&0x0FF)); 
+                    }
+                this.registers.setCarryFlag(0);
+                if(this.memory.readAddr(address)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
+                this.registers.advancePC(1);
+                return 16;
+                
+
+            case 0x2F:
+                this.sra(reg.A);
+                this.registers.advancePC(1);
+                return 8; 
+//SRL
+            case 0x38:
+                this.srl(reg.B);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x39:
+                this.srl(reg.C);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x3A:
+                this.srl(reg.D);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x3B:
+                this.srl(reg.E);
+                this.registers.advancePC(1);
+                return 8;
+
+
+            case 0x3C:
+                this.srl(reg.H);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x3D:
+                this.srl(reg.L);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x3E:
+                var address = this.registers.readSixteenReg(reg.H);
+                var reference= this.memory.readAddr(address);
+                this.registers.setNegativeFlag(0);
+                this.registers.setHalfCarryFlag(0);
+                if(reference&0x01==0x01)
+                {
+                    this.registers.setCarryFlag(1);
+                   this.memory.writeAddr(address,((reference>>>1)&0x0FF));
+                    if(this.memory.readAddr(address)==0)
+                    {
+                        this.registers.setZeroFlag(1);
+                    }
+                    else{
+                        this.registers.setZeroFlag(0);
+                    }
+                    this.registers.advancePC(1);
+                    return 16;
+        
+                }
+               this.memory.writeAddr(address,reference>>>1);
+                this.registers.setCarryFlag(0);
+                if(this.memory.readAddr(address)==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
+                this.registers.advancePC(1);
+                return 16;
+                
+
+            case 0x3F:
+                this.srl(reg.A);
+                this.registers.advancePC(1);
+                return 8;
+
+//SWAP
+            case 0x30:
+                this.swap(reg.B);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x31:
+                this.swap(reg.C);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x32:
+                this.swap(reg.D);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x33:
+                this.swap(reg.E);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x34:
+                this.swap(reg.H);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x35:
+                this.swap(reg.L);
+                this.registers.advancePC(1);
+                return 8;
+
+            case 0x36:
+                registers.setCarryFlag(0);
+                registers.setNegativeFlag(0);
+                registers.setHalfCarryFlag(0);
+                var address = this.registers.readSixteenReg(reg.H);
+                var reference= this.memory.readAddr(address);
+
+                var topNibble = (address&0xF0)>>>4;
+                var bottomNibble = (address&0x0F)<<4;
+                topNibble=topNibble|bottomNibble;
+                if(topNibble==0)
+                {
+                    this.registers.setZeroFlag(1);
+                }
+                else{
+                    this.registers.setZeroFlag(0);
+                }
+                this.memory.writeAddr(address,topNibble);
+                this.registers.advancePC(1);
+                return 16;
+
+            case 0x37:
+                this.swap(reg.A);
+                this.registers.advancePC(1);
+                return 8;
+
+            
+
+            
+
+
 
 
 
