@@ -464,7 +464,89 @@
 
 
     }
+    CPU.prototype.bitFunction= function(whatReg, whatBit)
+    {
+        this.registers.setHalfCarryFlag(1);
+        this.registers.setNegativeFlag(0);
 
+        var bit = 0x01;
+        bit = bit << whatBit;
+        if(bit&this.registers.getReg(whatReg)==bit)
+        {
+            this.registers.setZeroFlag(0);
+
+
+        }
+        else{
+            this.registers.setZeroFlag(1);
+        }
+        this.registers.advancePC(1);
+        return 8;
+
+    }
+
+    CPU.prototype.bitFunctionRef= function(whatBit)
+    {
+        this.registers.setHalfCarryFlag(1);
+        this.registers.setNegativeFlag(0);
+        var address = this.registers.readSixteenReg(reg.H);
+        var reference= this.memory.readAddr(address);
+        var bit = 0x01;
+        bit = bit << whatBit;
+        if(bit&reference==bit)
+        {
+            this.registers.setZeroFlag(0);
+
+
+        }
+        else{
+            this.registers.setZeroFlag(1);
+        }
+        this.registers.advancePC(1);
+        return 12;
+
+    }
+
+    CPU.prototype.setUnsetFunction= function(whatReg, whatBit, set)
+    {
+
+        var bit = 0x01;
+        bit = bit << whatBit;
+        if(set==0)
+        {
+            
+            this.registers.writeReg(whatReg,(this.registers.getReg(whatReg)^bit))
+
+
+        }
+        else if (set==1){
+            this.registers.writeReg(whatReg,(this.registers.getReg(whatReg)|bit))
+        }
+        this.registers.advancePC(1);
+        return 8;
+
+    }
+
+    CPU.prototype.setUnsetFunctionRef= function(whatBit,set)
+    {
+        var address = this.registers.readSixteenReg(reg.H);
+        var reference= this.memory.readAddr(address);
+        var bit = 0x01;
+        bit = bit << whatBit;
+        if(set==0)
+        {
+            
+            this.memory.writeAddr(address,(reference^bit))
+
+
+        }
+        else if (set==1){
+            this.memory.writeAddr(address,(reference|bit))
+        }
+        this.registers.advancePC(1);
+        return 12;
+
+    }
 
     //implement the opcodes
     //question is do I make the map/switch statement here or in gameboy
@@ -3286,8 +3368,448 @@
                 this.swap(reg.A);
                 this.registers.advancePC(1);
                 return 8;
+//BIT
+        //0
+            case 0x40:
+                return this.bitFunction(reg.B,0);
+            case 0x41:
+                return this.bitFunction(reg.C,0);
+            case 0x42:
+                return this.bitFunction(reg.D,0);
+            case 0x43:
+                return this.bitFunction(reg.E,0);
+            case 0x44:
+                return this.bitFunction(reg.H,0);
+            case 0x45:
+                return this.bitFunction(reg.L,0);
+            case 0x46:
+                return this.bitFunctionRef(0);
+            case 0x47:
+                return this.bitFunction(reg.A,0);
+        //1
+            case 0x48:
+                return this.bitFunction(reg.B,1);
+            case 0x49:
+                return this.bitFunction(reg.C,1);
+            case 0x4A:
+                return this.bitFunction(reg.D,1);
+            case 0x4B:
+                return this.bitFunction(reg.E,1);
+            case 0x4C:
+                return this.bitFunction(reg.H,1);
+            case 0x4D:
+                return this.bitFunction(reg.L,1);
+            case 0x4E:
+                return this.bitFunctionRef(1);
+            case 0x4F:
+                return this.bitFunction(reg.A,1);
 
-            
+
+        //2
+           case 0x50:
+                return this.bitFunction(reg.B,2);
+           case 0x51:
+                return this.bitFunction(reg.C,2);
+           case 0x52:
+                return this.bitFunction(reg.D,2);
+           case 0x53:
+                return this.bitFunction(reg.E,2);
+           case 0x54:
+                return this.bitFunction(reg.H,2);
+           case 0x55:
+                return this.bitFunction(reg.L,2);
+           case 0x56:
+                return this.bitFunctionRef(2);
+           case 0x57:
+                return this.bitFunction(reg.A,2);
+        //3
+           case 0x58:
+                return this.bitFunction(reg.B,3);
+           case 0x59:
+                return this.bitFunction(reg.C,3);
+           case 0x5A:
+                return this.bitFunction(reg.D,3);
+           case 0x5B:
+                return this.bitFunction(reg.E,3);
+           case 0x5C:
+                return this.bitFunction(reg.H,3);
+           case 0x5D:
+                return this.bitFunction(reg.L,3);
+           case 0x5E:
+                return this.bitFunctionRef(3);
+           case 0x5F:
+                return this.bitFunction(reg.A,3);
+
+        //4
+            case 0x60:
+                return this.bitFunction(reg.B,4);
+            case 0x61:
+                return this.bitFunction(reg.C,4);
+            case 0x62:
+                return this.bitFunction(reg.D,4);
+            case 0x63:
+                return this.bitFunction(reg.E,4);
+            case 0x64:
+                return this.bitFunction(reg.H,4);
+            case 0x65:
+                return this.bitFunction(reg.L,4);
+            case 0x66:
+                return this.bitFunctionRef(4);
+            case 0x67:
+                return this.bitFunction(reg.A,4);
+        //5
+            case 0x68:
+                return this.bitFunction(reg.B,5);
+            case 0x69:
+                return this.bitFunction(reg.C,5);
+            case 0x6A:
+                return this.bitFunction(reg.D,5);
+            case 0x6B:
+                return this.bitFunction(reg.E,5);
+            case 0x6C:
+                return this.bitFunction(reg.H,5);
+            case 0x6D:
+                return this.bitFunction(reg.L,5);
+            case 0x6E:
+                return this.bitFunctionRef(5);
+            case 0x6F:
+                return this.bitFunction(reg.A,5);
+
+
+        //6
+            case 0x70:
+                return this.bitFunction(reg.B,6);
+            case 0x71:
+                return this.bitFunction(reg.C,6);
+            case 0x72:
+                return this.bitFunction(reg.D,6);
+            case 0x73:
+                return this.bitFunction(reg.E,6);
+            case 0x74:
+                return this.bitFunction(reg.H,6);
+            case 0x75:
+                return this.bitFunction(reg.L,6);
+            case 0x76:
+                return this.bitFunctionRef(6);
+            case 0x77:
+                return this.bitFunction(reg.A,6);
+        //7
+            case 0x78:
+                return this.bitFunction(reg.B,7);
+            case 0x79:
+                return this.bitFunction(reg.C,7);
+            case 0x7A:
+                return this.bitFunction(reg.D,7);
+            case 0x7B:
+                return this.bitFunction(reg.E,7);
+            case 0x7C:
+                return this.bitFunction(reg.H,7);
+            case 0x7D:
+                return this.bitFunction(reg.L,7);
+            case 0x7E:
+                return this.bitFunctionRef(7);
+            case 0x7F:
+                return this.bitFunction(reg.A,7);
+
+
+
+
+
+//unset
+
+        //0
+        case 0x80:
+            return this.setUnsetFunction(reg.B,0,0);
+        case 0x81:
+            return this.setUnsetFunction(reg.C,0,0);
+        case 0x82:
+            return this.setUnsetFunction(reg.D,0,0);
+        case 0x83:
+            return this.setUnsetFunction(reg.E,0,0);
+        case 0x84:
+            return this.setUnsetFunction(reg.H,0,0);
+        case 0x85:
+            return this.setUnsetFunction(reg.L,0,0);
+        case 0x86:
+            return this.setUnsetFunctionRef(0,0);
+        case 0x87:
+            return this.setUnsetFunction(reg.A,0,0);
+    //1
+        case 0x88:
+            return this.setUnsetFunction(reg.B,1,0);
+        case 0x89:
+            return this.setUnsetFunction(reg.C,1,0);
+        case 0x8A:
+            return this.setUnsetFunction(reg.D,1,0);
+        case 0x8B:
+            return this.setUnsetFunction(reg.E,1,0);
+        case 0x8C:
+            return this.setUnsetFunction(reg.H,1,0);
+        case 0x8D:
+            return this.setUnsetFunction(reg.L,1,0);
+        case 0x8E:
+            return this.setUnsetFunctionRef(1,0);
+        case 0x8F:
+            return this.setUnsetFunction(reg.A,1,0);
+
+
+    //2
+       case 0x90:
+            return this.setUnsetFunction(reg.B,2,0);
+       case 0x91:
+            return this.setUnsetFunction(reg.C,2,0);
+       case 0x92:
+            return this.setUnsetFunction(reg.D,2,0);
+       case 0x93:
+            return this.setUnsetFunction(reg.E,2,0);
+       case 0x94:
+            return this.setUnsetFunction(reg.H,2,0);
+       case 0x95:
+            return this.setUnsetFunction(reg.L,2,0);
+       case 0x96:
+            return this.setUnsetFunctionRef(2,0);
+       case 0x97:
+            return this.setUnsetFunction(reg.A,2,0);
+    //3
+       case 0x98:
+            return this.setUnsetFunction(reg.B,3,0);
+       case 0x99:
+            return this.setUnsetFunction(reg.C,3,0);
+       case 0x9A:
+            return this.setUnsetFunction(reg.D,3,0);
+       case 0x9B:
+            return this.setUnsetFunction(reg.E,3,0);
+       case 0x9C:
+            return this.setUnsetFunction(reg.H,3,0);
+       case 0x9D:
+            return this.setUnsetFunction(reg.L,3,0);
+       case 0x9E:
+            return this.setUnsetFunctionRef(3,0);
+       case 0x9F:
+            return this.setUnsetFunction(reg.A,3,0);
+
+    //4
+        case 0xA0:
+            return this.setUnsetFunction(reg.B,4,0);
+        case 0xA1:
+            return this.setUnsetFunction(reg.C,4,0);
+        case 0xA2:
+            return this.setUnsetFunction(reg.D,4,0);
+        case 0xA3:
+            return this.setUnsetFunction(reg.E,4,0);
+        case 0xA4:
+            return this.setUnsetFunction(reg.H,4,0);
+        case 0xA5:
+            return this.setUnsetFunction(reg.L,4,0);
+        case 0xA6:
+            return this.setUnsetFunctionRef(4,0);
+        case 0xA7:
+            return this.setUnsetFunction(reg.A,4,0);
+    //5
+        case 0xA8:
+            return this.setUnsetFunction(reg.B,5,0);
+        case 0xA9:
+            return this.setUnsetFunction(reg.C,5,0);
+        case 0xAA:
+            return this.setUnsetFunction(reg.D,5,0);
+        case 0xAB:
+            return this.setUnsetFunction(reg.E,5,0);
+        case 0xAC:
+            return this.setUnsetFunction(reg.H,5,0);
+        case 0xAD:
+            return this.setUnsetFunction(reg.L,5,0);
+        case 0xAE:
+            return this.setUnsetFunctionRef(5,0);
+        case 0xAF:
+            return this.setUnsetFunction(reg.A,5,0);
+
+
+    //6
+        case 0xB0:
+            return this.setUnsetFunction(reg.B,6,0);
+        case 0xB1:
+            return this.setUnsetFunction(reg.C,6,0);
+        case 0xB2:
+            return this.setUnsetFunction(reg.D,6,0);
+        case 0xB3:
+            return this.setUnsetFunction(reg.E,6,0);
+        case 0xB4:
+            return this.setUnsetFunction(reg.H,6,0);
+        case 0xB5:
+            return this.setUnsetFunction(reg.L,6,0);
+        case 0xB6:
+            return this.setUnsetFunctionRef(6,0);
+        case 0xB7:
+            return this.setUnsetFunction(reg.A,6,0);
+    //7
+        case 0xB8:
+            return this.setUnsetFunction(reg.B,7,0);
+        case 0xB9:
+            return this.setUnsetFunction(reg.C,7,0);
+        case 0xBA:
+            return this.setUnsetFunction(reg.D,7,0);
+        case 0xBB:
+            return this.setUnsetFunction(reg.E,7,0);
+        case 0xBC:
+            return this.setUnsetFunction(reg.H,7,0);
+        case 0xBD:
+            return this.setUnsetFunction(reg.L,7,0);
+        case 0xBE:
+            return this.setUnsetFunctionRef(7,0);
+        case 0xBF:
+            return this.setUnsetFunction(reg.A,7,0);
+
+
+
+
+
+
+
+
+
+//set
+
+        //0
+            case 0xC0:
+                return this.setUnsetFunction(reg.B,0,1);
+            case 0xC1:
+                return this.setUnsetFunction(reg.C,0,1);
+            case 0xC2:
+                return this.setUnsetFunction(reg.D,0,1);
+            case 0xC3:
+                return this.setUnsetFunction(reg.E,0,1);
+            case 0xC4:
+                return this.setUnsetFunction(reg.H,0,1);
+            case 0xC5:
+                return this.setUnsetFunction(reg.L,0,1);
+            case 0xC6:
+                return this.setUnsetFunctionRef(0,1);
+            case 0xC7:
+                return this.setUnsetFunction(reg.A,0,1);
+        //1
+            case 0xC8:
+                return this.setUnsetFunction(reg.B,1,1);
+            case 0xC9:
+                return this.setUnsetFunction(reg.C,1,1);
+            case 0xCA:
+                return this.setUnsetFunction(reg.D,1,1);
+            case 0xCB:
+                return this.setUnsetFunction(reg.E,1,1);
+            case 0xCC:
+                return this.setUnsetFunction(reg.H,1,1);
+            case 0xCD:
+                return this.setUnsetFunction(reg.L,1,1);
+            case 0xCE:
+                return this.setUnsetFunctionRef(1,1);
+            case 0xCF:
+                return this.setUnsetFunction(reg.A,1,1);
+
+
+        //2
+           case 0xD0:
+                return this.setUnsetFunction(reg.B,2,1);
+           case 0xD1:
+                return this.setUnsetFunction(reg.C,2,1);
+           case 0xD2:
+                return this.setUnsetFunction(reg.D,2,1);
+           case 0xD3:
+                return this.setUnsetFunction(reg.E,2,1);
+           case 0xD4:
+                return this.setUnsetFunction(reg.H,2,1);
+           case 0xD5:
+                return this.setUnsetFunction(reg.L,2,1);
+           case 0xD6:
+                return this.setUnsetFunctionRef(2,1);
+           case 0xD7:
+                return this.setUnsetFunction(reg.A,2,1);
+        //3
+           case 0xD8:
+                return this.setUnsetFunction(reg.B,3,1);
+           case 0xD9:
+                return this.setUnsetFunction(reg.C,3,1);
+           case 0xDA:
+                return this.setUnsetFunction(reg.D,3,1);
+           case 0xDB:
+                return this.setUnsetFunction(reg.E,3,1);
+           case 0xDC:
+                return this.setUnsetFunction(reg.H,3,1);
+           case 0xDD:
+                return this.setUnsetFunction(reg.L,3,1);
+           case 0xDE:
+                return this.setUnsetFunctionRef(3,1);
+           case 0xDF:
+                return this.setUnsetFunction(reg.A,3,1);
+
+        //4
+            case 0xE0:
+                return this.setUnsetFunction(reg.B,4,1);
+            case 0xE1:
+                return this.setUnsetFunction(reg.C,4,1);
+            case 0xE2:
+                return this.setUnsetFunction(reg.D,4,1);
+            case 0xE3:
+                return this.setUnsetFunction(reg.E,4,1);
+            case 0xE4:
+                return this.setUnsetFunction(reg.H,4,1);
+            case 0xE5:
+                return this.setUnsetFunction(reg.L,4,1);
+            case 0xE6:
+                return this.setUnsetFunctionRef(4,1);
+            case 0xE7:
+                return this.setUnsetFunction(reg.A,4,1);
+        //5
+            case 0xE8:
+                return this.setUnsetFunction(reg.B,5,1);
+            case 0xE9:
+                return this.setUnsetFunction(reg.C,5,1);
+            case 0xEA:
+                return this.setUnsetFunction(reg.D,5,1);
+            case 0xEB:
+                return this.setUnsetFunction(reg.E,5,1);
+            case 0xEC:
+                return this.setUnsetFunction(reg.H,5,1);
+            case 0xED:
+                return this.setUnsetFunction(reg.L,5,1);
+            case 0xEE:
+                return this.setUnsetFunctionRef(5,1);
+            case 0xEF:
+                return this.setUnsetFunction(reg.A,5,1);
+
+
+        //6
+            case 0xF0:
+                return this.setUnsetFunction(reg.B,6,1);
+            case 0xF1:
+                return this.setUnsetFunction(reg.C,6,1);
+            case 0xF2:
+                return this.setUnsetFunction(reg.D,6,1);
+            case 0xF3:
+                return this.setUnsetFunction(reg.E,6,1);
+            case 0xF4:
+                return this.setUnsetFunction(reg.H,6,1);
+            case 0xF5:
+                return this.setUnsetFunction(reg.L,6,1);
+            case 0xF6:
+                return this.setUnsetFunctionRef(6,1);
+            case 0xF7:
+                return this.setUnsetFunction(reg.A,6,1);
+        //7
+            case 0xF8:
+                return this.setUnsetFunction(reg.B,7,1);
+            case 0xF9:
+                return this.setUnsetFunction(reg.C,7,1);
+            case 0xFA:
+                return this.setUnsetFunction(reg.D,7,1);
+            case 0xFB:
+                return this.setUnsetFunction(reg.E,7,1);
+            case 0xFC:
+                return this.setUnsetFunction(reg.H,7,1);
+            case 0xFD:
+                return this.setUnsetFunction(reg.L,7,1);
+            case 0xFE:
+                return this.setUnsetFunctionRef(7,1);
+            case 0xFF:
+                return this.setUnsetFunction(reg.A,7,1);
 
             
 
