@@ -1,7 +1,7 @@
 (function() {
-    var registers = require("./registers");
+    var Registers = require("./registers");
     var rom = require("./ROM");
-    var memory= require("./mmu");
+    
     
 
 
@@ -18,9 +18,9 @@
     //   PC: 1 dont believe this is needed either
 
     }
-    function CPU() {
+    function CPU(mem) {
         this.registers = new Registers();
-        this.memory = new MMU(this,game);
+        this.memory = mem;
 
         }
     

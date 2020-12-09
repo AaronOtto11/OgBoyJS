@@ -3,30 +3,28 @@
 
     var bios;
     var rom = require("./rom");
-    var vRam;
+   // var vRam;
     var exRam;
     var workingRam; 
     var ioReg;
     var highRam;
     var sprites; // not sure if needed here
     var isStartup; 
-    var passedCPU= require("./CPU");
+    var PPU= require("./ppu");
     
 
 
 
-    function MMU(cpu) { // memory is byte addressable as far as I'm aware so storing by byte seems like the best option
+    function MMU(graphics) { // memory is byte addressable as far as I'm aware so storing by byte seems like the best option
         //could make one large array but this will be easier to debug hopefully 
-        this.passedCPU=cpu;
-        this.isStartup=true;
+       // this.isStartup=true;
         this.bios= Uint8Array(0x0100);
         this.rom = null;//this needs to be its own class 
-        this.vRam = Uint8Array(0x2000); // possibly needs to go into video
         this.exRam = Uint8Array(0x2000);
         this.workingRam = Uint8Array(0x2000);
         this.ioReg = Uint8Array(0x0080);
         this.highRam = Uint8Array(0x007F);
-        this.sprites= Uint8Array(0x00A0);
+        this.ppu=graphics;
     
         };
     
@@ -47,22 +45,14 @@
             
             switch (true) {      //since they are checked in order then you can order by what gets called more often and gain speed if needed
                 case (addr<0x8000): 
-                    if(isStartup)
-                    {
-                        return MMU.bios[addr];
-                    }
-                    else if (passedCPU.registers.getPC()==0x0100)    
-                    {
-                        isStartup=false;
-                    } 
-                    //trying to access cartridge rom
 
+                    //trying to access cartridge rom
                     return rom.getROM(addr);
                     //this will be handled by rom class's mbc
                     break;
                 case (addr<0xA000):
                     //vram
-                    return vRam[addr-0x8000]; //this should start the address spae at 0 to access the correct area in the array
+                    return this.ppu.vRam[addr-0x8000]; //this should start the address spae at 0 to access the correct area in the array
                     
                 case (addr<0xC000):
                     //exRam
@@ -77,7 +67,10 @@
                     break;
                 case (addr<0xFF00):
                     //sprites
-                    return sprites[addr-0xFE00]; //this should start the address spae at 0 to access the correct area in the array
+                    if(addr<0xFE9F){
+                    return this.ppu.sprites[addr-0xFE00]; //this should start the address spae at 0 to access the correct area in the array
+                    }
+                    break;
                     
                 case (addr<0xFF80):
                     //io
@@ -96,21 +89,14 @@
 
         switch (true) {      //since they are checked in order then you can order by what gets called more often and gain speed if needed
             case (addr<0x8000): 
-                if(isStartup)
-                {
-                    break;
-                }
-                else if (passedCPU.registers.getPC()==0x0100)    
-                {
-                    isStartup=false;
-                } 
+
                 //trying to access cartridge rom
                 this.rom.writeRom(addr,data);
                 //this will be handled by rom class's mbc
                 break;
             case (addr<0xA000):
                 //vram
-                vRam[addr-0x8000]= data; //this should start the address spae at 0 to access the correct area in the array
+                this.ppu.vRam[addr-0x8000]= data; //this should start the address spae at 0 to access the correct area in the array
                 break;
             case (addr<0xC000):
                 //exRam
@@ -126,7 +112,9 @@
                 break;
             case (addr<0xFF00):
                 //sprites
-                sprites[addr-0xFE00]= data; //this should start the address spae at 0 to access the correct area in the array
+                if(addr<0xFE9F){
+                this.ppu.sprites[addr-0xFE00]= data; //this should start the address spae at 0 to access the correct area in the array
+                }
                 break;
             case (addr<0xFF80):
                 //io

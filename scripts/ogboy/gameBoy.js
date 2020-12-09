@@ -1,11 +1,17 @@
 (function() {
     var CPU = require("./cpu");
     var ROM = require("./ROM");
+    var MMU= require("./mmu");
+    var PPU= require("./ppu");
 
 
     function gameBoy() {
         //start code based of Alex Dickerson's NES project to provide a good starting point while learning javaScript
-        this.cpu = new CPU();
+        this.ppu = new PPU();
+        this.memory = new MMU(this.ppu);
+        this.rom= new ROM();
+        this.cpu = new CPU(this.memory);
+        
         }
     
 
@@ -18,7 +24,7 @@
 
     gameBoy.prototype.stepFrame = function() {
         // timing idea from codeslinger 
-        const maxCycles = 69905;  //max number of cycles that can be run in 1 frame
+        const maxCycles = 69905;  //max number of cycles that can be run in 1 frame (ie 60 refresh in a second)
         var currentCycles = 0;
       
         while (currentCycles < maxCycles)
@@ -29,7 +35,7 @@
            runPPU(cycles); // graphics
            DoInterupts(); 
         }
-        drawFrame();
+        drawFrame(); //openGL probably
     };
 
     gameBoy.prototype.reset = function() {
